@@ -3,7 +3,8 @@
 #include "UnityInput.h"
 
 #include "TileManager.h"
-#include "PaperSprite.h" 
+#include "PaperSprite.h"
+#include "PaperSpriteComponent.h"
 //#include "../Plugins/2D/Paper2D/Source/Paper2D/Classes/PaperSpriteComponent.h"
 
 // Sets default values for this component's properties
@@ -24,22 +25,31 @@ void UTileManager::BeginPlay()
 
 	double CurrentY = 0;
 	double CurrentX = 0;
+	double SpriteWidth = 0;
 	m_Grid.Reserve(Width);
 	for (int i = 0; i < Height; i++)
 	{
 		TArray<AActor*> NewRow;
 		for (int j = 0; j < Width; j++)
 		{
-			CurrentX += 100;
-			FVector Position = { CurrentY,CurrentX,0 };
+			FVector Position = { CurrentX,CurrentY,0 };
 			FTransform NewTransform;
 			NewTransform.SetLocation(Position);
 			AActor* NewActor = GetWorld()->SpawnActor<AActor>(TileObject, NewTransform);
-			//int Width = NewActor->FindComponentByClass<PAPER2UPaperSpriteComponent>;
+			UPaperSpriteComponent* SpriteComponent = NewActor->FindComponentByClass<UPaperSpriteComponent>();
+			if(SpriteComponent)
+			{
+				SpriteWidth = SpriteComponent->GetSprite()->GetBakedTexture()->GetSizeX();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No sprite component for tiles"));
+			}
+			CurrentX += SpriteWidth;
 			NewRow.Add(NewActor);
 		}
 		CurrentX = 0;
-		CurrentY += 100;
+		CurrentY += SpriteWidth;
 		m_Grid.Add(NewRow);
 	}
 	// ...

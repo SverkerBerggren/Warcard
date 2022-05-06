@@ -110,7 +110,12 @@ FVector2D UnityInput::GetMousePosition()
     bool Result = G_Player1Controller->GetMousePosition(x, y);
     return(FVector2D(x, y));
 }
-
+FVector2D UnityInput::GetMouseDrag()
+{
+    FVector2D ReturnValue;
+    G_Player1Controller->GetInputMouseDelta(ReturnValue.X, ReturnValue.Y);
+    return(ReturnValue);
+}
 
 
 

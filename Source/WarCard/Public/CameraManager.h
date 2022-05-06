@@ -2,25 +2,23 @@
 
 #pragma once
 
+#include "Camera/CameraComponent.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MoveTest.generated.h"
+#include "CameraManager.generated.h"
+
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class WARCARD_API UMoveTest : public UActorComponent
+class WARCARD_API UCameraManager : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UMoveTest();
-
-	float MoveSpeed = 0.1f;
-	float ScrollSpeed = 1000;
-private:
- 	//APlayerController* m_PlayerInput = nullptr;
-
+	UCameraManager();
+	static UCameraComponent* GetActiveCamera();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

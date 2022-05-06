@@ -2,6 +2,7 @@
 
 #include "UnityInput.h"
 
+#include "CameraManager.h"
 #include "ClickGenerator.h"
 
 
@@ -53,17 +54,28 @@ void UClickGenerator::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 		// Set up parameters for getting the player viewport
 		FVector PlayerViewPointLocation;
-		FRotator PlayerViewPointRotation;
+		FVector PlayerViewPointRotation;
 
 		// Get player viewport and set these parameters
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		//GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		//	OUT PlayerViewPointLocation,
+		//	OUT PlayerViewPointRotation
+		//);
+		GetWorld()->GetFirstPlayerController()->DeprojectMousePositionToWorld(
 			OUT PlayerViewPointLocation,
 			OUT PlayerViewPointRotation
 		);
+		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::MouseScrollUp))
+		{
 
+		}
+		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::MouseScrollDown))
+		{
+
+		}
 		// Parameter for how far out the the line trace reaches
 		float Reach = 10000.f;
-		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation * Reach;
 
 
 		UE_LOG(LogTemp, Warning, TEXT("LineTraceBegin: %f %f %f"), PlayerViewPointLocation.X, PlayerViewPointLocation.Y, PlayerViewPointLocation.Z);
@@ -85,7 +97,8 @@ void UClickGenerator::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		AActor* ActorHit = Hit.GetActor();
 
 		if (ActorHit) {
-			UE_LOG(LogTemp, Warning, TEXT("Line trace has hit: %s"), *(ActorHit->GetName()))
+			UE_LOG(LogTemp, Warning, TEXT("Line trace has hit: %s"), *(ActorHit->GetName()));
+			ActorHit->Destroy();
 		}
 	}
 	// ...

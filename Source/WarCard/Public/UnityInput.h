@@ -25,10 +25,8 @@ public:
 
 	static FVector2D GetMousePosition();
 
-	void GetMouseDrag(double& OutX, double& OutY);
+	static FVector2D GetMouseDrag();
 };
-
-
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

@@ -2,8 +2,9 @@
 //#include "APlayerController.h"
 
 #include "UnityInput.h"
-
+#include "CameraManager.h"
 #include "MoveTest.h"
+
 
 // Sets default values for this component's properties
 UMoveTest::UMoveTest()
@@ -47,13 +48,43 @@ void UMoveTest::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	//}
 	if (UnityInput::GetKeyDown(UnityKeyCode::D))
 	{
-		NewPosition.X += 4;
-		UE_LOG(LogTemp, Warning, TEXT("ShouldDoStuff"));
+		NewPosition.X += MoveSpeed * (UCameraManager::GetActiveCamera()->OrthoWidth)*DeltaTime;
 	}
 	if (UnityInput::GetKeyDown(UnityKeyCode::A))
 	{
-		NewPosition.X -= 4;
-		UE_LOG(LogTemp, Warning, TEXT("ShouldDoStuff"));
+		NewPosition.X -= MoveSpeed * (UCameraManager::GetActiveCamera()->OrthoWidth) * DeltaTime;
+	}
+	if (UnityInput::GetKeyDown(UnityKeyCode::S))
+	{
+		NewPosition.Y += MoveSpeed * (UCameraManager::GetActiveCamera()->OrthoWidth) * DeltaTime;
+	}
+	if (UnityInput::GetKeyDown(UnityKeyCode::W))
+	{
+		NewPosition.Y -= MoveSpeed * (UCameraManager::GetActiveCamera()->OrthoWidth) * DeltaTime;
+	}
+	if (UnityInput::GetKeyDown(EKeys::RightMouseButton))
+	{
+		FVector2D ViewportSize;
+		GetWorld()->GetGameViewport()->GetViewportSize(ViewportSize);
+		FVector2D Delta =  UnityInput::GetMouseDrag();
+
+		float DeltaX = -(Delta.X /ViewportSize.X)*UCameraManager::GetActiveCamera()->OrthoWidth *100;
+		//UE_LOG(LogTemp, Warning, TEXT("Delta X %f ViemportSizeX %f OrthoWidth %f Result %f"), Delta.X, ViewportSize.X, UCameraManager::GetActiveCamera()->OrthoWidth,DeltaX);
+		float DeltaY = (Delta.Y/ViewportSize.Y) * UCameraManager::GetActiveCamera()->OrthoWidth/UCameraManager::GetActiveCamera()->AspectRatio * 100;
+		
+
+		NewPosition.X += DeltaX;
+		NewPosition.Y += DeltaY;
+	}
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::MouseScrollUp) || GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::MouseScrollUp))
+	{
+		UCameraManager::GetActiveCamera()->SetOrthoWidth(UCameraManager::GetActiveCamera()->OrthoWidth - ScrollSpeed);
+		UE_LOG(LogTemp, Warning, TEXT("Scrolling"));
+	}
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::MouseScrollDown) || GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::MouseScrollDown))
+	{
+		UCameraManager::GetActiveCamera()->SetOrthoWidth(UCameraManager::GetActiveCamera()->OrthoWidth + ScrollSpeed);
+		UE_LOG(LogTemp, Warning, TEXT("Scrolling"));
 	}
 	//GetWorld()->GetFirstPlayerController().mousedelta
 	//	UE_LOG(LogTemp, Warning, TEXT("InTick"));
