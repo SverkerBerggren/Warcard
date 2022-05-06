@@ -104,6 +104,7 @@ FVector2D UnityInput::GetMousePosition()
     {
         return false;
     }
+    
     double x = 0;
     double y = 0;
     bool Result = G_Player1Controller->GetMousePosition(x, y);

@@ -13,6 +13,20 @@ class WARCARD_API UTileManager : public UActorComponent
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> TileObject;
+
+	UPROPERTY(EditAnywhere)
+	int Height = 20;
+	UPROPERTY(EditAnywhere)
+	int Width = 20;
+	TArray<TArray<AActor*>> m_Grid;
+	//UPROPERTY(EditAnywhere)
+	//A
+	//AActor
+	
+	
 	// Sets default values for this component's properties
 	UTileManager();
 
