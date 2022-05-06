@@ -1,0 +1,14 @@
+using System;
+using System.IO;
+using UnrealBuildTool;
+
+public class MBLibs : ModuleRules
+{
+    public MBLibs(ReadOnlyTargetRules Target) : base(Target)
+    {
+       // Type = ModuleType.External;
+        //PublicIncludePaths.Add(Path.Combine(ModuleDirectory));
+        //PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory,"MBUtility","MBPM_Builds", "MBUtility_SR.lib"));
+        //PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory,"MBParsing","MBPM_Builds", "MBParsing_SR.lib"));
+    }
+}
