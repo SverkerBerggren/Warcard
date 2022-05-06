@@ -37,6 +37,56 @@ void UClickGenerator::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		//UE_LOG(LogTemp, Warning, TEXT("LeftClickelick"));
 		FVector2D MousePositon = UnityInput::GetMousePosition();
 		UE_LOG(LogTemp, Warning, TEXT("Mouse position: %f %f"), MousePositon.X, MousePositon.Y);
+		//TInlineComponentArray<CamereCo*> Cameras;
+		//GetComponents<UCameraComponent>(/*out*/ Cameras);
+		//
+		//for (UCameraComponent* CameraComponent : Cameras)
+		//{
+		//	if (CameraComponent->bIsActive)
+		//	{
+		//		CameraComponent->GetCameraView(DeltaTime, OutResult);
+		//		return;
+		//	}
+		//}
+		
+		//GetWorld()->GetFirstPlayerController()->PlayerCameraManager->getcamearvi
+
+		// Set up parameters for getting the player viewport
+		FVector PlayerViewPointLocation;
+		FRotator PlayerViewPointRotation;
+
+		// Get player viewport and set these parameters
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+			OUT PlayerViewPointLocation,
+			OUT PlayerViewPointRotation
+		);
+
+		// Parameter for how far out the the line trace reaches
+		float Reach = 10000.f;
+		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
+
+		UE_LOG(LogTemp, Warning, TEXT("LineTraceBegin: %f %f %f"), PlayerViewPointLocation.X, PlayerViewPointLocation.Y, PlayerViewPointLocation.Z);
+		UE_LOG(LogTemp, Warning, TEXT("LineTraceEnd: %f %f %f"), LineTraceEnd.X, LineTraceEnd.Y, LineTraceEnd.Z);
+
+		// Set parameters to use line tracing
+		FHitResult Hit;
+		FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());  // false to ignore complex collisions and GetOwner() to ignore self
+
+	// Raycast out to this distance
+		GetWorld()->LineTraceSingleByObjectType(
+			OUT Hit,
+			PlayerViewPointLocation,
+			LineTraceEnd,
+			FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldDynamic),
+			TraceParams
+		);
+		// See what if anything has been hit and return what
+		AActor* ActorHit = Hit.GetActor();
+
+		if (ActorHit) {
+			UE_LOG(LogTemp, Warning, TEXT("Line trace has hit: %s"), *(ActorHit->GetName()))
+		}
 	}
 	// ...
 }
