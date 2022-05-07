@@ -32,9 +32,14 @@ protected:
 		 class UButton* ChangeImages;
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UImage* BildAttForandra;
+
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UVerticalBox* BoxToDisplayIMage;
+
+
 	 virtual void NativeConstruct() override;
 
-
+	 
 
 //	 UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SoftObject", meta = (AllowedClasses = "Texture2D"))
 //		 FSoftObjectPath hej TEXT("Texture2D'/Game/Sprites/1_2_2.1_2_2'");

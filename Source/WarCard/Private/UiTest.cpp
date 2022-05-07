@@ -59,19 +59,35 @@ void UUiTest::ChangeImageClick()
 //	FSlateBrush testBild = FSlateBrush();
 // 
 	UE_LOG(LogTemp, Warning, TEXT("Den forsoke andra bild"));
-	UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/1_2_2.1_2_2'"), NULL, LOAD_None, NULL);
+	UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/OskarTexture.OskarTexture'"), NULL, LOAD_None, NULL);
 //	BildAttForandra->SetBrushSize(FVector2D(5, 19));
 
-	BildAttForandra->Brush.SetImageSize(FVector2D(5, 5));
+
+	if (nyBild == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+		return; 
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Storleken av bilden %d"), nyBild->GetSizeX());
+
+//	UE_LOG(LogTemp, Warning, TEXT("Den forsoke andra bild"));
+	
+
+//	BildAttForandra->Brush.SetImageSize(FVector2D(5, 5));
+
+//	BildAttForandra->SetBrush(FSlateBrush())
 
 	UE_LOG(LogTemp, Warning, TEXT("hallo %f"),BildAttForandra->Brush.GetImageSize().X );
 //	BildAttForandra->Brush.SetImageSize(FVector2D(4, 20));
-//	BildAttForandra->SynchronizeProperties();
+	BildAttForandra->SynchronizeProperties();
 	
 	
-	BildAttForandra->SetColorAndOpacity(FLinearColor(1, 4, 5, 6));
+
+//	BildAttForandra->SetColorAndOpacity(FLinearColor(1, 4, 5, 6));
 	
 	//BildAttForandra->SetVisibility(ESlateVisibility::Hidden);
- 	//BildAttForandra->SetBrushFromTexture(nyBild, true);
+ 	BildAttForandra->SetBrushFromTexture(nyBild, true);
 }
 
