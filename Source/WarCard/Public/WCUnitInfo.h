@@ -28,6 +28,16 @@ public:
 	int Damage = 0;
 	UPROPERTY(EditAnywhere);
 	int ActivationCost = 0;
+
+	UPROPERTY(EditAnywhere);
+	FText description = FText::AsNumber(420);
+
+	UPROPERTY(EditAnywhere);
+	UTexture2D* cardImage;
+
+
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -12,6 +12,27 @@
 /**
  * 
  */
+
+
+enum class ButtonType
+{
+	Move,
+	Attack, 
+	Ability,
+	ChangeTurn, 
+};
+
+class ButtonCallbacks
+{
+	virtual void OnClick(ButtonType button)
+	{
+
+	}
+
+	
+};
+
+
 UCLASS()
 class WARCARD_API UUiTest : public UUserWidget
 {
@@ -27,8 +48,6 @@ protected:
 		 class UButton* KnappAktivera;
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UButton* KnappAktiveraAnnanUi;
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UHorizontalBox* BoxAttAktivera;
 
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UButton* ChangeImages;
@@ -58,6 +77,31 @@ protected:
 
 
 
+
+
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UTextBlock* leftPlayerScore;
+
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UTextBlock* rightPlayerScore;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UTextBlock* battleRoundText;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UTextBlock* initiativTextCorner;
+
+
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UImage* turnIdentifier;
+
+
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UButton* buttonMove;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UButton* buttonAttack;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UButton* buttonAbility;
+
+
 	 virtual void NativeConstruct() override;
 
 	 
@@ -74,5 +118,34 @@ protected:
 	 UFUNCTION()
 		 void ChangeImageClick();
 	 UFUNCTION()
-		 void CreateUnitCard(const UWCUnitInfo* unitReference);
+		 void CreateUnitCard(UWCUnitInfo* unitReference);
+
+	 UFUNCTION()
+		 void CreateBottomHud(UWCUnitInfo* unitReference);
+
+	 UFUNCTION()
+		 void HideUnitCard();
+
+public: 
+	void UpdatePlayerScore(int playerIndex, int scoreToSet);
+	void SetRoundTimer(int round);
+	void SetActivePlayer(int playerIndex);
+	void SetInitiativ(int intitativ);
+	void HideAll(); 
+	
+
+	void ShowBottomHud();
+	void HideBottomHud();
+	void DisableBottomButton(ButtonType);
+	void EnableBottomButton(ButtonType);
+
+	void SetButtonCallback(ButtonCallbacks);
+
+	static UUiTest* GetHud();
+	
+
+	void ChangeTurn();
+//	void SetButtonCallbacks()
+
+
 };
