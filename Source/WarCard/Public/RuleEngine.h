@@ -86,10 +86,10 @@ namespace WCE
 
 		TMap<UnitToken, UnitInfo> m_UnitInfos;
 
-		TArray<TArrray<TileInfo>> m_Tiles;
+		TArray<TArray<TileInfo>> m_Tiles;
 	public:
 		RuleEngine() {};
-		RuleEngine(int Width, int Height) {};
+		RuleEngine(int Width, int Height) ;
 
 		//Observers
 		UnitPosition GetUnitPosition(UnitToken AssociatedUnit) const;

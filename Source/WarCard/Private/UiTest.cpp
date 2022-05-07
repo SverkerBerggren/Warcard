@@ -4,6 +4,7 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/CanvasPanel.h"
 //#include "Components/Image.h"
 #include "UiTest.h"
 
@@ -30,6 +31,14 @@ void UUiTest::NativeConstruct()
 	{
 		ChangeImages->OnClicked.AddDynamic(this, &UUiTest::ChangeImageClick); 
 	}
+
+
+	UWCUnitInfo* testUnit = NewObject<UWCUnitInfo>();
+
+	UUiTest::CreateUnitCard(testUnit);
+
+	CanvasUnitCard->SetVisibility(ESlateVisibility::Hidden);
+
 }
 
 void UUiTest::ForstaKnappenKlick()
@@ -51,7 +60,30 @@ void UUiTest::TestKlick()
 { 
 	UE_LOG(LogTemp, Warning, TEXT("Man kan klicka pa knappen"));
 	Texten->SetText(FText::AsNumber(20));
+
+	CanvasUnitCard->SetVisibility(ESlateVisibility::Visible);
 }
+
+void UUiTest::CreateUnitCard(const UWCUnitInfo* unitToConstruct)
+{
+	textMovement->SetText(FText::AsNumber(unitToConstruct->Movement));
+	textDamage->SetText(FText::AsNumber(unitToConstruct->MeleeDamage));
+	textHP->SetText(FText::AsNumber(unitToConstruct->HP));
+
+	UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/OskarTexture.OskarTexture'"), NULL, LOAD_None, NULL);
+
+	if (nyBild == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+		return;
+	}
+
+	unitImage->SetBrushFromTexture(nyBild, false);
+
+	
+}
+
 
 
 void UUiTest::ChangeImageClick()
