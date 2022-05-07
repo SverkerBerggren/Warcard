@@ -26,12 +26,17 @@ void UTileManager::BeginPlay()
 	double CurrentY = 0;
 	double CurrentX = 0;
 	double SpriteWidth = 0;
-	m_Grid.Reserve(Width);
+	m_Grid.Reserve(Height);
+	m_PlacedUnits.Reserve(Height);
 	for (int i = 0; i < Height; i++)
 	{
 		TArray<AActor*> NewRow;
+		TArray<WCE::UnitToken> NewUnits;
+		NewRow.Reserve(Width);
+		NewUnits.Reserve(Width);
 		for (int j = 0; j < Width; j++)
 		{
+			NewUnits.Add(0);
 			FVector Position = { CurrentX,CurrentY,0 };
 			FTransform NewTransform;
 			NewTransform.SetLocation(Position);
@@ -62,6 +67,7 @@ void UTileManager::BeginPlay()
 		CurrentX = 0;
 		CurrentY += SpriteWidth;
 		m_Grid.Add(NewRow);
+		m_PlacedUnits.Add(NewUnits);
 	}
 	m_RuleEngine = WCE::RuleEngine(Width, Height);
 	m_GridStartPosition = FVector2D( 0,0 );
@@ -77,6 +83,36 @@ void UTileManager::p_ClearSelectedTiles()
 		m_HighlightTiles[i]->Destroy();
 	}
 	m_HighlightTiles.Empty();
+}
+void UTileManager::PlaceUnit(int PlayerIndex, int UnitIndex, FVector2D Position)
+{
+	if (UnitIndex < 0 || UnitIndex > Units.Num())
+	{
+		return;
+	}
+	if ((Position.X >= Width || Position.X < 0) || (Position.Y >= Height || Position.Y < 0))
+	{
+		return;
+	}
+	WCE::Unit UnitInfo;
+	UWCUnitInfo* CurrentInfo = Units[UnitIndex]->GetDefaultObject<AActor>()->FindComponentByClass<UWCUnitInfo>();
+	if (CurrentInfo)
+	{
+		UnitInfo.CurrentHP = CurrentInfo->HP;
+		UnitInfo.MovementSpeed = CurrentInfo->Movement;
+		UnitInfo.Damage = CurrentInfo->Damage;
+		UnitInfo.Type = CurrentInfo->UnitID;
+		UnitInfo.Range = CurrentInfo->Range;
+		UnitInfo.ActivationCost = CurrentInfo->ActivationCost;
+
+	}
+	WCE::UnitPosition UnitPosition;
+	UnitInfo.ControllerIndex = PlayerIndex;
+	UnitPosition.X = Position.X;
+	UnitPosition.Y = Position.Y;
+
+	m_PlacedUnits[Position.Y][Position.X] = m_RuleEngine.RegisterUnit(MoveTemp(UnitInfo), UnitPosition);
+	
 }
 void UTileManager::GridClick(int X, int Y) 
 {
