@@ -3,12 +3,14 @@
 #pragma once
 
 #include "WCTile.h"
+#include "WCUnitInfo.h"
 #include "RuleEngine.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "TileManager.generated.h"
 
 //struct 
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class WARCARD_API UTileManager : public UActorComponent,public GridReciever
@@ -38,9 +40,14 @@ public:
 	TArray<TSubclassOf<AActor>> Units;
 
 
-	//TArray<TArray<
+	void PlaceUnit(int PlayerIndex,int UnitIndex,FVector2D Position);
 
+
+
+	//TArray<TArray<
+	TArray<TArray<WCE::UnitToken>> m_PlacedUnits;
 	TArray<TArray<AActor*>> m_Grid;
+
 	TArray<AActor*> m_HighlightTiles;
 
 	WCE::RuleEngine m_RuleEngine;

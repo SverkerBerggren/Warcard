@@ -23,7 +23,11 @@ public:
 	UPROPERTY(EditAnywhere);
 	int HP = 0;
 	UPROPERTY(EditAnywhere);
-	int MeleeDamage = 0;
+	int Range = 0;
+	UPROPERTY(EditAnywhere);
+	int Damage = 0;
+	UPROPERTY(EditAnywhere);
+	int ActivationCost = 0;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

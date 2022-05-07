@@ -12,6 +12,21 @@ namespace WCE
 	{
 		int X;
 		int Y;
+		bool operator<(UnitPosition const& rhs) const
+		{
+			if (X < rhs.X)
+			{
+				return(true);
+			}
+			else if (X == rhs.X)
+			{
+				if (Y < rhs.Y)
+				{
+					return(true);
+				}
+			}
+			return(false);
+		}
 	};
 
 	enum class RuleError
@@ -62,11 +77,13 @@ namespace WCE
 	typedef uint32_t UnitType;
 	struct Unit
 	{
+		int ControllerIndex = 0;
 		UnitType Type = 0;
 		TArray<TUniquePtr<Effect>> Effects;
 		int ActivationCost = 0;
 		int MovementSpeed = 0;
-		int MeeleDamage = 0;
+		int Range = 0;
+		int Damage = 0;
 		int CurrentHP = 0;
 	};
 
@@ -75,21 +92,26 @@ namespace WCE
 		UnitToken StandingUnit = 0;
 	};
 
+	struct UnitInfo
+	{
+		Unit UnitData;
+		UnitPosition Position;
+	};
+
 	class RuleEngine
 	{
 	private:
-		struct UnitInfo
-		{
-			Unit UnitData;
-			UnitPosition Position;
-		};
-
+		UnitToken m_CurrentID = 1;
 		TMap<UnitToken, UnitInfo> m_UnitInfos;
 
-		TArray<TArrray<TileInfo>> m_Tiles;
+		int m_GridWidth = 0;
+		int m_GridHeight = 0;
+		TArray<TArray<TileInfo>> m_Tiles;
+
+		void i_RecursiveTraversal(UnitInfo const& Info, UnitPosition CurrentPosition, int PossibleMoves, TArray<UnitPosition>& OutResult) const;
 	public:
 		RuleEngine() {};
-		RuleEngine(int Width, int Height) {};
+		RuleEngine(int Width, int Height);
 
 		//Observers
 		UnitPosition GetUnitPosition(UnitToken AssociatedUnit) const;
