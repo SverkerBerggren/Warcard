@@ -48,7 +48,7 @@ void UUiTest::KnappAktiveraKlick()
 }
 
 void UUiTest::TestKlick()
-{
+{ 
 	UE_LOG(LogTemp, Warning, TEXT("Man kan klicka pa knappen"));
 	Texten->SetText(FText::AsNumber(20));
 }
@@ -60,7 +60,7 @@ void UUiTest::ChangeImageClick()
 // 
 	UE_LOG(LogTemp, Warning, TEXT("Den forsoke andra bild"));
 	UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/1_2_2.1_2_2'"), NULL, LOAD_None, NULL);
-	BildAttForandra->SetBrushSize(FVector2D(5, 19));
+//	BildAttForandra->SetBrushSize(FVector2D(5, 19));
 
 	BildAttForandra->Brush.SetImageSize(FVector2D(5, 5));
 
