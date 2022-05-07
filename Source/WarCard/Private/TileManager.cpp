@@ -22,7 +22,7 @@ UTileManager::UTileManager()
 void UTileManager::BeginPlay()
 {
 	Super::BeginPlay();
-
+	//return;
 	double CurrentY = 0;
 	double CurrentX = 0;
 	double SpriteWidth = 0;
@@ -72,6 +72,13 @@ void UTileManager::BeginPlay()
 	m_RuleEngine = WCE::RuleEngine(Width, Height);
 	m_GridStartPosition = FVector2D( 0,0 );
 	m_TileWidth = SpriteWidth;
+
+	PlaceUnit(1, 0, FVector2D(0, 0));
+	PlaceUnit(1, 0, FVector2D(0, 1));
+	PlaceUnit(1, 0, FVector2D(0, 2));
+	PlaceUnit(2, 0, FVector2D(5, 0));
+	PlaceUnit(2, 0, FVector2D(5, 1));
+	PlaceUnit(2, 0, FVector2D(5, 2));
 	// ...
 	//Blue
 }
@@ -95,7 +102,11 @@ void UTileManager::PlaceUnit(int PlayerIndex, int UnitIndex, FVector2D Position)
 		return;
 	}
 	WCE::Unit UnitInfo;
-	UWCUnitInfo* CurrentInfo = Units[UnitIndex]->GetDefaultObject<AActor>()->FindComponentByClass<UWCUnitInfo>();
+	FVector ActorPosition = FVector(m_GridStartPosition.X+Position.X*m_TileWidth,m_GridStartPosition.Y+Position.Y* m_TileWidth,0);
+	FTransform NewTransform;
+	NewTransform.SetLocation(ActorPosition);
+	AActor* NewActor = GetWorld()->SpawnActor<AActor>(Units[UnitIndex], NewTransform);
+	UWCUnitInfo* CurrentInfo = NewActor->FindComponentByClass<UWCUnitInfo>();
 	if (CurrentInfo)
 	{
 		UnitInfo.CurrentHP = CurrentInfo->HP;
@@ -104,7 +115,10 @@ void UTileManager::PlaceUnit(int PlayerIndex, int UnitIndex, FVector2D Position)
 		UnitInfo.Type = CurrentInfo->UnitID;
 		UnitInfo.Range = CurrentInfo->Range;
 		UnitInfo.ActivationCost = CurrentInfo->ActivationCost;
-
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No unit info in prefab"));
 	}
 	WCE::UnitPosition UnitPosition;
 	UnitInfo.ControllerIndex = PlayerIndex;
@@ -112,21 +126,143 @@ void UTileManager::PlaceUnit(int PlayerIndex, int UnitIndex, FVector2D Position)
 	UnitPosition.Y = Position.Y;
 
 	m_PlacedUnits[Position.Y][Position.X] = m_RuleEngine.RegisterUnit(MoveTemp(UnitInfo), UnitPosition);
-	
+	m_UnitActors.Add(m_PlacedUnits[Position.Y][Position.X], NewActor);
 }
-void UTileManager::GridClick(int X, int Y) 
+void UTileManager::MoveUnit(WCE::UnitToken TokenToMove, WCE::UnitPosition NewPosition)
+{
+	if (!m_UnitActors.Contains(TokenToMove))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid actor"));
+		return;
+	}
+	WCE::RuleError Result = m_RuleEngine.MoveUnit(TokenToMove, NewPosition);
+	if (Result != WCE::RuleError::Ok)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid move"));
+		return;
+	}
+	AActor* AssociatedActor = m_UnitActors[TokenToMove];
+	AssociatedActor->SetActorLocation(FVector(m_GridStartPosition.X+NewPosition.X*m_TileWidth, m_GridStartPosition.Y +NewPosition.Y*m_TileWidth, 0));
+	WCE::UnitPosition Position = m_RuleEngine.GetUnitInfo(TokenToMove).Position;
+	m_PlacedUnits[Position.Y][Position.X] = 0;
+	m_PlacedUnits[NewPosition.Y][NewPosition.X] = TokenToMove;
+}
+Animation_Attack::Animation_Attack(AActor* Attacker, AActor* Defender)
+{
+	if (Attacker == nullptr || Defender == nullptr)
+	{
+		return;
+	}
+	AttackerObject = Attacker;
+	AttackerOriginalPosition = AttackerObject->GetActorLocation();
+	DefenderOriginalPosition = Defender->GetActorLocation();
+	DefenderObject = Defender;
+}
+void Animation_Attack::Increment(float DeltaTime) 
+{
+	if (AttackerObject == nullptr || DefenderObject == nullptr)
+	{
+		return;
+	}
+	AttackerObject->SetActorLocation(AttackerOriginalPosition);
+	DefenderObject->SetActorLocation(DefenderOriginalPosition);
+	if (m_ElapsedTime < m_AttackDuration)
+	{
+		FVector NewPosition = AttackerOriginalPosition;
+		NewPosition.X += FMath::Sin(m_ElapsedTime * m_ElapsedTime * 40) * m_Amplitude;
+		AttackerObject->SetActorLocation(NewPosition);
+	}
+	else if(m_ElapsedTime >= m_TakeDamageOffset)
+	{
+		FVector NewPosition = DefenderOriginalPosition;
+		NewPosition.X += FMath::Sin(m_ElapsedTime * m_ElapsedTime * 1000) * m_Amplitude;
+		DefenderObject->SetActorLocation(NewPosition);
+	}
+	m_ElapsedTime += DeltaTime;
+}
+bool Animation_Attack::IsFinished() 
+{
+	if (AttackerObject == nullptr || DefenderObject == nullptr)
+	{
+		return true;
+	}
+	bool ReturnValue = m_ElapsedTime >= m_TotalTime;
+	if (ReturnValue)
+	{
+		DefenderObject->SetActorLocation(DefenderOriginalPosition);
+		AttackerObject->SetActorLocation(AttackerOriginalPosition);
+	}
+	return(ReturnValue);
+}
+void UTileManager::AttackUnit(WCE::UnitToken Attacker, WCE::UnitToken Defender)
+{
+	AActor* AttackerObject = nullptr;
+	AActor* DefenderObject = nullptr;
+	if (!(m_UnitActors.Contains(Attacker) && m_UnitActors.Contains(Defender)))
+	{
+		return;
+	}
+	AttackerObject = m_UnitActors[Attacker];
+	DefenderObject = m_UnitActors[Defender];
+	ActiveAnimation = new Animation_Attack(AttackerObject, DefenderObject);
+}
+void UTileManager::GridClick(ClickType Type,int X, int Y) 
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Grid clickelick"));
+	
+	if (ActiveAnimation)
+	{
+		return;
+	}
+
+
+
 	if (m_HighlightTiles.Num() > 0)
 	{
 		p_ClearSelectedTiles();
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Highlighting"));
-	FVector Position = FVector(m_GridStartPosition.X+X*m_TileWidth,m_GridStartPosition.Y+Y*m_TileWidth,20);
-	FTransform NewTransform;
-	NewTransform.SetLocation(Position);
-	AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
-	m_HighlightTiles.Add(NewActor);
+	UE_LOG(LogTemp, Warning, TEXT("Highlighting tile with unit %d"),m_PlacedUnits[Y][X]);
+
+
+	if (UnitSelected == false)
+	{
+		if (m_PlacedUnits[Y][X] == 0)
+		{
+			FVector Position = FVector(m_GridStartPosition.X + X * m_TileWidth, m_GridStartPosition.Y + Y * m_TileWidth, 20);
+			FTransform NewTransform;
+			NewTransform.SetLocation(Position);
+			AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
+			m_HighlightTiles.Add(NewActor);
+		}
+		else
+		{ 
+			if (m_RuleEngine.GetActivePlayerIndex() != m_RuleEngine.GetUnitInfo(m_PlacedUnits[Y][X]).UnitData.ControllerIndex)
+			{
+				return;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Searcing available moves:"));
+			TArray<WCE::UnitPosition> PossibleMoves = m_RuleEngine.PossibleMoves(m_PlacedUnits[Y][X]);
+			for (auto& Move : PossibleMoves)
+			{
+				FVector Position = FVector(m_GridStartPosition.X + Move.X * m_TileWidth, m_GridStartPosition.Y + Move.Y * m_TileWidth, 20);
+				FTransform NewTransform;
+				NewTransform.SetLocation(Position);
+				AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
+				m_HighlightTiles.Add(NewActor);
+			}
+			UnitSelected = true;
+			SelectedUnit = m_PlacedUnits[Y][X];
+		}
+	}
+	else
+	{
+		TArray<WCE::UnitPosition> PossibleMoves = m_RuleEngine.PossibleMoves(SelectedUnit);
+		if (PossibleMoves.Contains(WCE::UnitPosition{X,Y}))
+		{
+			MoveUnit(SelectedUnit, WCE::UnitPosition{ X,Y });
+		}
+		UnitSelected = false;
+	}
 }
 
 // Called every frame
@@ -134,21 +270,20 @@ void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(ActiveAnimation)
+	{
+		ActiveAnimation->Increment(DeltaTime);
+		if (ActiveAnimation->IsFinished())
+		{
+			delete ActiveAnimation;
+			ActiveAnimation = nullptr;
+		}
+		return;
+	}
+	//Test
 	if (UnityInput::GetKeyDown(EKeys::SpaceBar))
 	{
-		//FActorSpawnParameters Parameters = FActorSpawnParameters();
-		UE_LOG(LogTemp, Warning, TEXT("Spawn Tile"));
-		if (TileObject)
-		{
-			FVector Position = { 0,0,0 };
-			FTransform NewTransform;
-			NewTransform.SetLocation(FVector3d(0, 0, 0));
-			GetWorld()->SpawnActor<AActor>(TileObject, NewTransform);
-			//Parameters.Template = TileObject;
-			//FVector NewPosition = -TileObject->GetTransform().GetLocation();
-			//AActor* NewActor =GetWorld()->SpawnActor<AActor>(NewPosition, FRotator());
-			//UEngine::CopyPropertiesForUnrelatedObjects(TileObject, NewActor);
-		}
+		AttackUnit(1, 2);
 	}
 	// ...
 }

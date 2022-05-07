@@ -33,8 +33,13 @@ void UClickGenerator::BeginPlay()
 void UClickGenerator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (UnityInput::GetKeyDown(EKeys::LeftMouseButton))
+	if (UnityInput::GetKeyPressed(EKeys::LeftMouseButton) || UnityInput::GetKeyPressed(EKeys::RightMouseButton))
 	{
+		ClickType Type = ClickType::LeftMouse;
+		if (UnityInput::GetKeyPressed(EKeys::RightMouseButton))
+		{
+			Type = ClickType::RightMouse;
+		}
 		//UE_LOG(LogTemp, Warning, TEXT("LeftClickelick"));
 		FVector2D MousePositon = UnityInput::GetMousePosition();
 		UE_LOG(LogTemp, Warning, TEXT("Mouse position: %f %f"), MousePositon.X, MousePositon.Y);
@@ -102,7 +107,7 @@ void UClickGenerator::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			UClickable* ClickComponent = ActorHit->FindComponentByClass<UClickable>();
 			if (ClickComponent)
 			{
-				ClickComponent->OnClick();
+				ClickComponent->OnClick(Type);
 			}
 		}
 	}

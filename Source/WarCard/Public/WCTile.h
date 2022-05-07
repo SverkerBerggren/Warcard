@@ -12,7 +12,7 @@
 class GridReciever
 {
 public:
-	virtual void GridClick(int X, int Y) = 0;
+	virtual void GridClick(ClickType Type,int X, int Y) = 0;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -28,7 +28,7 @@ public:
 	int X = 0;
 	int Y = 0;
 
-	void OnClick() override;
+	void OnClick(ClickType) override;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

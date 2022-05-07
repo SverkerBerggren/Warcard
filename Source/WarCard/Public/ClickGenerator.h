@@ -6,13 +6,20 @@
 #include "Components/ActorComponent.h"
 #include "ClickGenerator.generated.h"
 
+
+enum class ClickType
+{
+	LeftMouse,
+	RightMouse,
+};
+
 UCLASS(Abstract)
 class UClickable : public UActorComponent
 {
 
 	GENERATED_BODY()
 public:
-	virtual void OnClick()
+	virtual void OnClick(ClickType)
 	{
 		
 	};

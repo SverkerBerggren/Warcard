@@ -12,11 +12,11 @@ UWCTile::UWCTile()
 
 	// ...
 }
-void UWCTile::OnClick()
+void UWCTile::OnClick(ClickType Type)
 {
 	if (AssociatedGrid)
 	{
-		AssociatedGrid->GridClick(X, Y);
+		AssociatedGrid->GridClick(Type,X, Y);
 	}
 }
 
