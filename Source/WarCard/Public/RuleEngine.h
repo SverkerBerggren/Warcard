@@ -27,12 +27,19 @@ namespace WCE
 			}
 			return(false);
 		}
+		bool operator==(UnitPosition const& rhs) const
+		{
+			return(X == rhs.X && Y == rhs.Y);
+		}
 	};
 
 	enum class RuleError
 	{
 		Ok,
 		UnitDoesntExist,
+		InvalidPosition,
+		SpaceOccupied,
+		InvalidMove,
 	};
 
 
@@ -74,10 +81,20 @@ namespace WCE
 			}
 		}
 	};
+
+	enum class UnitFlags
+	{
+		Null = 0,
+		Activated = 1,
+		Moved     = 1<<1,
+		Attacked  = 1<<2,
+	};
+
 	typedef uint32_t UnitType;
 	struct Unit
 	{
 		int ControllerIndex = 0;
+		UnitFlags Flags = UnitFlags::Null;
 		UnitType Type = 0;
 		TArray<TUniquePtr<Effect>> Effects;
 		int ActivationCost = 0;
@@ -98,6 +115,17 @@ namespace WCE
 		UnitPosition Position;
 	};
 
+
+	class RuleEngineCallbackHandler
+	{
+	public:
+		virtual void UnitDestroyed(UnitToken UnitDestroyed)
+		{
+
+		}
+	};
+
+
 	class RuleEngine
 	{
 	private:
@@ -108,25 +136,28 @@ namespace WCE
 		int m_GridHeight = 0;
 		TArray<TArray<TileInfo>> m_Tiles;
 
+		RuleEngineCallbackHandler* m_CallbackHandler = nullptr;
+
+		int m_ActivePlayerIndex = 1;
 		void i_RecursiveTraversal(UnitInfo const& Info, UnitPosition CurrentPosition, int PossibleMoves, TArray<UnitPosition>& OutResult) const;
 	public:
 		RuleEngine() {};
 		RuleEngine(int Width, int Height);
 
+
+		void SetCallbackHandler(RuleEngineCallbackHandler* HandlerToSet);
 		//Observers
 		UnitPosition GetUnitPosition(UnitToken AssociatedUnit) const;
 		TArray<UnitPosition> PossibleMoves(UnitToken AssociatedUnit) const;
-		Unit const& GetUnitInfo(UnitToken AssociatedUnit) const;
+		UnitInfo const& GetUnitInfo(UnitToken AssociatedUnit) const;
 		int GetActivePlayerIndex() const;
 
 
 		//Mutators
 		UnitToken RegisterUnit(Unit UnitInfo, UnitPosition Position);
-		RuleError BeginResolve();
-		RuleError MeleeAttack(UnitToken Attacker, UnitToken Defender);
+		RuleError MoveUnit(UnitToken AssociatedUnit, UnitPosition NewPosition);
+		RuleError Attack(UnitToken Attacker, UnitToken Defender);
 		RuleError DealDamage(UnitToken AssociatedUnit, int DamageAmount);
 		RuleError DestroyUnit(UnitToken AssociatedUnit);
-		RuleError MoveUnit(UnitToken AssociatedUnit, UnitPosition NewPosition);
-		RuleError EndResolve();
 	};
 }

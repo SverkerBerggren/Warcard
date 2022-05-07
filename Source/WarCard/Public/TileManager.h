@@ -11,9 +11,60 @@
 
 //struct 
 
+class UTileManager;
+class AnimationHandler
+{
+public:
+	UTileManager* AssociatedTileHandler = nullptr;
+	virtual void Increment(float DeltaTime) = 0;
+	virtual bool IsFinished() = 0;
+};
+
+class Animation_Attack : public AnimationHandler
+{
+private:
+	float m_ElapsedTime = 0;
+	float m_TotalTime = 1;
+	float m_TakeDamageOffset = 0;
+	float m_Amplitude = 100;
+	FVector AttackerOriginalPosition;
+	AActor* AttackerObject = nullptr;
+	AActor* DefenderObject = nullptr;
+public:
+	Animation_Attack(AActor* Attacker, AActor* Defender);
+	void Increment(float DeltaTime) override;
+	bool IsFinished() override;
+};
+
+enum class EventType
+{
+	Null,
+	UnitDestroyed,
+
+};
+
+class Event
+{
+protected:
+	EventType m_Type = EventType::Null;
+public:
+	EventType GetType() const
+	{
+		return(m_Type);
+	}
+};
+
+class Event_UnitDestroyed : Event
+{
+	Event_UnitDestroyed()
+	{
+		m_Type = EventType::UnitDestroyed;
+	}
+	WCE::UnitToken DestroyedUnit = 0;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class WARCARD_API UTileManager : public UActorComponent,public GridReciever
+class WARCARD_API UTileManager : public UActorComponent,public GridReciever,public WCE::RuleEngineCallbackHandler
 {
 	GENERATED_BODY()
 
@@ -39,14 +90,32 @@ public:
 	UPROPERTY(EditAnywhere);
 	TArray<TSubclassOf<AActor>> Units;
 
+	size_t m_EventOffset = 0;
+	TArray<TUniquePtr<Event>> m_EventStack = {};
 
+	AnimationHandler* ActiveAnimation = nullptr;
+
+	void UnitDestroyed(WCE::UnitToken DestroyedUnit) override
+	{
+
+	}
+
+
+	void DisplayAttackRange(WCE::UnitToken AssociatedUnit);
 	void PlaceUnit(int PlayerIndex,int UnitIndex,FVector2D Position);
+	void PlaceSwitch(WCE::UnitPosition SwitchPosition);
+	void MoveUnit(WCE::UnitToken TokenToMove, WCE::UnitPosition NewPosition);
+	void AttackUnit(WCE::UnitToken Attacker, WCE::UnitToken Defender);
 
-
+	WCE::UnitToken SelectedUnit = 0;
+	bool UnitSelected = false;
 
 	//TArray<TArray<
 	TArray<TArray<WCE::UnitToken>> m_PlacedUnits;
+	TMap<WCE::UnitToken, AActor*> m_UnitActors;
 	TArray<TArray<AActor*>> m_Grid;
+
+
 
 	TArray<AActor*> m_HighlightTiles;
 
@@ -58,7 +127,7 @@ public:
 
 	void p_ClearSelectedTiles();
 
-	void GridClick(int X, int Y) override;
+	void GridClick(ClickType Type,int X, int Y) override;
 	//UPROPERTY(EditAnywhere)
 	//A
 	//AActor
