@@ -8,6 +8,7 @@
 //#include "Components/Image.h"
 #include "UiTest.h"
 
+UUiTest* TheHud = nullptr;
 
 void UUiTest::NativeConstruct()
 {
@@ -32,6 +33,8 @@ void UUiTest::NativeConstruct()
 		ChangeImages->OnClicked.AddDynamic(this, &UUiTest::ChangeImageClick); 
 	}
 
+	TheHud = this; 
+
 
 	UWCUnitInfo* testUnit = NewObject<UWCUnitInfo>();
 
@@ -45,6 +48,53 @@ void UUiTest::NativeConstruct()
 
 	SetInitiativ(5);
 
+	// SetBottomHud(ESlateVisibility::Hidden);
+
+}
+void UUiTest::SetButtonCallback(ButtonCallbacks* inputObject)
+{
+	callBack = inputObject; 
+}
+
+
+void UUiTest::MoveButtonFunction()
+{
+	callBack->OnClick(ButtonType::Move);
+}
+
+
+void UUiTest::AttackButtonFunction()
+{
+	callBack->OnClick(ButtonType::Attack);
+}
+
+
+void UUiTest::AbilityButtonFunction()
+{
+	callBack->OnClick(ButtonType::Ability);
+}
+
+void UUiTest::ChangeTurnButtonFunction()
+{
+	callBack->OnClick(ButtonType::ChangeTurn);
+}
+
+
+
+void UUiTest::SetBottomButton(ButtonType whichButton, bool state)
+{
+	if (whichButton == ButtonType::Move)
+	{
+		buttonMove->SetIsEnabled(state);
+	}
+	if (whichButton == ButtonType::Attack)
+	{
+		buttonAttack->SetIsEnabled(state);
+	}
+	if (whichButton == ButtonType::Ability)
+	{
+		buttonAbility->SetIsEnabled(state);
+	}
 }
 
 void UUiTest::ForstaKnappenKlick()
@@ -100,7 +150,7 @@ void UUiTest::CreateUnitCard( UWCUnitInfo* unitToConstruct)
 
 void UUiTest::CreateBottomHud(UWCUnitInfo* unitReference)
 {
-
+	
 }
 
 void UUiTest::UpdatePlayerScore(int playerIndex, int scoreToSet)
@@ -150,15 +200,22 @@ void UUiTest::SetActivePlayer(int activePlayer)
 	}
 }
 
+
+UUiTest* UUiTest::GetHud()
+{
+	return TheHud; 
+}
+
 void UUiTest::SetInitiativ(int intitativ)
 {
 	initiativTextCorner->SetText(FText::FromString(FString::FormatAsNumber(intitativ) + FString::FString("/10"))) ;
 }
 
-void UUiTest::ShowBottomHud()
+void UUiTest::SetBottomHud(ESlateVisibility state)
 {
-	buttonMove->SetIsEnabled(true);
-	buttonAttack->SetIsEnabled(true);
+	buttonMove->SetVisibility(ESlateVisibility::Hidden);
+	buttonAttack->SetVisibility(ESlateVisibility::Hidden);
+	buttonAbility->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UUiTest::ChangeImageClick()

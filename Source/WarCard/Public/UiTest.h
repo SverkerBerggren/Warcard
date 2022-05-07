@@ -23,12 +23,11 @@ enum class ButtonType
 };
 
 class ButtonCallbacks
-{
+{	public: 
 	virtual void OnClick(ButtonType button)
 	{
 
 	}
-
 	
 };
 
@@ -126,6 +125,16 @@ protected:
 	 UFUNCTION()
 		 void HideUnitCard();
 
+	 UFUNCTION()
+		 void MoveButtonFunction();
+	 UFUNCTION()
+		 void AttackButtonFunction();
+	 UFUNCTION()
+		 void AbilityButtonFunction();
+	 UFUNCTION()
+		 void ChangeTurnButtonFunction();
+
+
 public: 
 	void UpdatePlayerScore(int playerIndex, int scoreToSet);
 	void SetRoundTimer(int round);
@@ -134,17 +143,23 @@ public:
 	void HideAll(); 
 	
 
-	void ShowBottomHud();
-	void HideBottomHud();
-	void DisableBottomButton(ButtonType);
-	void EnableBottomButton(ButtonType);
+	void SetBottomHud(ESlateVisibility hej);
+	// bvoid HideBottomHud();
+	void SetBottomButton(ButtonType, bool);
+//	void EnableBottomButton(ButtonType);
 
-	void SetButtonCallback(ButtonCallbacks);
+
+	ButtonCallbacks* callBack = nullptr; 
+
+
+
+
+	void SetButtonCallback(ButtonCallbacks* );
 
 	static UUiTest* GetHud();
 	
 
-	void ChangeTurn();
+//	void ChangeTurn();
 //	void SetButtonCallbacks()
 
 
