@@ -2,37 +2,33 @@
 
 #pragma once
 
-#include "WCTile.h"
+#include "ClickGenerator.h"
+
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "TileManager.generated.h"
+#include "WCTile.generated.h"
 
+
+class GridReciever
+{
+public:
+	virtual void GridClick(int X, int Y) = 0;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class WARCARD_API UTileManager : public UActorComponent,public GridReciever
+class WARCARD_API UWCTile : public UClickable
 {
 	GENERATED_BODY()
 
-public:
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> TileObject;
-
-	UPROPERTY(EditAnywhere)
-	int Height = 20;
-	UPROPERTY(EditAnywhere)
-	int Width = 20;
-	TArray<TArray<AActor*>> m_Grid;
-
-	void GridClick(int X, int Y) override;
-	//UPROPERTY(EditAnywhere)
-	//A
-	//AActor
-	
-	
+public:	
 	// Sets default values for this component's properties
-	UTileManager();
+	UWCTile();
 
+	GridReciever* AssociatedGrid = nullptr;
+	int X = 0;
+	int Y = 0;
+
+	void OnClick() override;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

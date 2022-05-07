@@ -56,6 +56,10 @@ void UTileManager::BeginPlay()
 	//Blue
 }
 
+void UTileManager::GridClick(int X, int Y) 
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grid clickelick"));
+}
 
 // Called every frame
 void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

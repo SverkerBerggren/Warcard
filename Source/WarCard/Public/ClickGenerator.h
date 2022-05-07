@@ -6,6 +6,17 @@
 #include "Components/ActorComponent.h"
 #include "ClickGenerator.generated.h"
 
+UCLASS(Abstract)
+class UClickable : public UActorComponent
+{
+
+	GENERATED_BODY()
+public:
+	virtual void OnClick()
+	{
+		
+	};
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class WARCARD_API UClickGenerator : public UActorComponent
