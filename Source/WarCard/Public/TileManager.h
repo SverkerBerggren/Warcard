@@ -24,10 +24,12 @@ class Animation_Attack : public AnimationHandler
 {
 private:
 	float m_ElapsedTime = 0;
-	float m_TotalTime = 1;
-	float m_TakeDamageOffset = 0;
+	float m_TotalTime = 1.2;
+	float m_AttackDuration = 0.5;
+	float m_TakeDamageOffset = 0.7;
 	float m_Amplitude = 100;
 	FVector AttackerOriginalPosition;
+	FVector DefenderOriginalPosition;
 	AActor* AttackerObject = nullptr;
 	AActor* DefenderObject = nullptr;
 public:

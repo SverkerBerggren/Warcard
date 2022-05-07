@@ -155,6 +155,7 @@ Animation_Attack::Animation_Attack(AActor* Attacker, AActor* Defender)
 	}
 	AttackerObject = Attacker;
 	AttackerOriginalPosition = AttackerObject->GetActorLocation();
+	DefenderOriginalPosition = Defender->GetActorLocation();
 	DefenderObject = Defender;
 }
 void Animation_Attack::Increment(float DeltaTime) 
@@ -163,9 +164,20 @@ void Animation_Attack::Increment(float DeltaTime)
 	{
 		return;
 	}
-	FVector NewPosition = AttackerOriginalPosition;
-	NewPosition.X += FMath::Sin(m_ElapsedTime*m_ElapsedTime * 1000)* m_Amplitude;
-	AttackerObject->SetActorLocation(NewPosition);
+	AttackerObject->SetActorLocation(AttackerOriginalPosition);
+	DefenderObject->SetActorLocation(DefenderOriginalPosition);
+	if (m_ElapsedTime < m_AttackDuration)
+	{
+		FVector NewPosition = AttackerOriginalPosition;
+		NewPosition.X += FMath::Sin(m_ElapsedTime * m_ElapsedTime * 40) * m_Amplitude;
+		AttackerObject->SetActorLocation(NewPosition);
+	}
+	else if(m_ElapsedTime >= m_TakeDamageOffset)
+	{
+		FVector NewPosition = DefenderOriginalPosition;
+		NewPosition.X += FMath::Sin(m_ElapsedTime * m_ElapsedTime * 1000) * m_Amplitude;
+		DefenderObject->SetActorLocation(NewPosition);
+	}
 	m_ElapsedTime += DeltaTime;
 }
 bool Animation_Attack::IsFinished() 
@@ -177,6 +189,7 @@ bool Animation_Attack::IsFinished()
 	bool ReturnValue = m_ElapsedTime >= m_TotalTime;
 	if (ReturnValue)
 	{
+		DefenderObject->SetActorLocation(DefenderOriginalPosition);
 		AttackerObject->SetActorLocation(AttackerOriginalPosition);
 	}
 	return(ReturnValue);
