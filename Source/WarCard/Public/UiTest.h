@@ -39,22 +39,6 @@ class WARCARD_API UUiTest : public UUserWidget
 	
 
 protected:
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		class UTextBlock* Texten; 
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UButton* ForstaKnappen;
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UButton* KnappAktivera;
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UButton* KnappAktiveraAnnanUi;
-
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UButton* ChangeImages;
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UImage* BildAttForandra;
-
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UVerticalBox* BoxToDisplayIMage;
 
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UImage* unitImage;

@@ -12,26 +12,8 @@ UUiTest* TheHud = nullptr;
 
 void UUiTest::NativeConstruct()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Kommer den hit"));
-	if (ForstaKnappen)
-	{
-		ForstaKnappen->OnClicked.AddDynamic(this, &UUiTest::ForstaKnappenKlick);
-	}
+//	UE_LOG(LogTemp, Warning, TEXT("Kommer den hit"));
 	
-	if (KnappAktivera)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("kommer den sen "));
-		KnappAktivera->OnClicked.AddDynamic(this, &UUiTest::KnappAktiveraKlick);
-	}
-	if (KnappAktiveraAnnanUi)
-	{
-		KnappAktiveraAnnanUi->OnClicked.AddDynamic(this, &UUiTest::TestKlick);
-	}
-
-	if (ChangeImages)
-	{
-		ChangeImages->OnClicked.AddDynamic(this, &UUiTest::ChangeImageClick); 
-	}
 
 	TheHud = this; 
 
@@ -40,7 +22,7 @@ void UUiTest::NativeConstruct()
 
 	UUiTest::CreateUnitCard(testUnit);
 
-	CanvasUnitCard->SetVisibility(ESlateVisibility::Hidden);
+//	CanvasUnitCard->SetVisibility(ESlateVisibility::Hidden);
 
 	SetActivePlayer(2);
 	UpdatePlayerScore(1, 10);
@@ -99,23 +81,23 @@ void UUiTest::SetBottomButton(ButtonType whichButton, bool state)
 
 void UUiTest::ForstaKnappenKlick()
 {
-	Texten->SetText(FText::AsNumber(17));
+//	Texten->SetText(FText::AsNumber(17));
 	UE_LOG(LogTemp, Warning, TEXT("Funktionen kan printa"));
 }
 
 
 void UUiTest::KnappAktiveraKlick()
 {
-	ForstaKnappen->SetIsEnabled(false);
+//	ForstaKnappen->SetIsEnabled(false);
 
 //	ESlateVisibility testVisibility = ESlateVisibility.hidd
-	KnappAktiveraAnnanUi->SetVisibility(ESlateVisibility::Visible);
+//	KnappAktiveraAnnanUi->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UUiTest::TestKlick()
 { 
 	UE_LOG(LogTemp, Warning, TEXT("Man kan klicka pa knappen"));
-	Texten->SetText(FText::AsNumber(20));
+//	Texten->SetText(FText::AsNumber(20));
 
 	CanvasUnitCard->SetVisibility(ESlateVisibility::Visible);
 }
@@ -243,7 +225,7 @@ void UUiTest::ChangeImageClick()
 
 //	BildAttForandra->SetBrush(FSlateBrush())
 
-	UE_LOG(LogTemp, Warning, TEXT("hallo %f"),BildAttForandra->Brush.GetImageSize().X );
+//	UE_LOG(LogTemp, Warning, TEXT("hallo %f"),BildAttForandra->Brush.GetImageSize().X );
 //	BildAttForandra->Brush.SetImageSize(FVector2D(4, 20));
 //	BildAttForandra->SynchronizeProperties();
 	
@@ -252,6 +234,6 @@ void UUiTest::ChangeImageClick()
 //	BildAttForandra->SetColorAndOpacity(FLinearColor(1, 4, 5, 6));
 	
 	//BildAttForandra->SetVisibility(ESlateVisibility::Hidden);
- 	BildAttForandra->SetBrushFromTexture(nyBild, true);
+ //	BildAttForandra->SetBrushFromTexture(nyBild, true);
 }
 
