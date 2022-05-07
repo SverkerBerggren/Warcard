@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "TileManager.h"
 #include "UnityInput.h"
 
-#include "TileManager.h"
 #include "PaperSprite.h"
 #include "PaperSpriteComponent.h"
 //#include "../Plugins/2D/Paper2D/Source/Paper2D/Classes/PaperSpriteComponent.h"
@@ -43,7 +43,18 @@ void UTileManager::BeginPlay()
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("No sprite component for tiles"));
+				UE_LOG(LogTemp, Fatal, TEXT("No sprite component for tiles"));
+			}
+			UWCTile* TileComponent = NewActor->FindComponentByClass<UWCTile>();
+			if (TileComponent)
+			{
+				TileComponent->X = j;
+				TileComponent->Y = i;
+				TileComponent->AssociatedGrid = this;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Fatal, TEXT("No tile component for tiles"));
 			}
 			CurrentX += SpriteWidth;
 			NewRow.Add(NewActor);
@@ -52,13 +63,34 @@ void UTileManager::BeginPlay()
 		CurrentY += SpriteWidth;
 		m_Grid.Add(NewRow);
 	}
+	m_RuleEngine = WCE::RuleEngine(Width, Height);
+	m_GridStartPosition = FVector2D( 0,0 );
+	m_TileWidth = SpriteWidth;
 	// ...
 	//Blue
 }
 
+void UTileManager::p_ClearSelectedTiles()
+{
+	for (size_t i = 0; i < m_HighlightTiles.Num(); i++)
+	{
+		m_HighlightTiles[i]->Destroy();
+	}
+	m_HighlightTiles.Empty();
+}
 void UTileManager::GridClick(int X, int Y) 
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grid clickelick"));
+	//UE_LOG(LogTemp, Warning, TEXT("Grid clickelick"));
+	if (m_HighlightTiles.Num() > 0)
+	{
+		p_ClearSelectedTiles();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Highlighting"));
+	FVector Position = FVector(m_GridStartPosition.X+X*m_TileWidth,m_GridStartPosition.Y+Y*m_TileWidth,20);
+	FTransform NewTransform;
+	NewTransform.SetLocation(Position);
+	AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
+	m_HighlightTiles.Add(NewActor);
 }
 
 // Called every frame

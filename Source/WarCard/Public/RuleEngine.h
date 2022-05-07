@@ -59,15 +59,21 @@ namespace WCE
 			}
 		}
 	};
-
+	typedef uint32_t UnitType;
 	struct Unit
 	{
+		UnitType Type = 0;
 		TArray<TUniquePtr<Effect>> Effects;
+		int ActivationCost = 0;
 		int MovementSpeed = 0;
 		int MeeleDamage = 0;
 		int CurrentHP = 0;
 	};
 
+	struct TileInfo
+	{
+		UnitToken StandingUnit = 0;
+	};
 
 	class RuleEngine
 	{
@@ -79,7 +85,11 @@ namespace WCE
 		};
 
 		TMap<UnitToken, UnitInfo> m_UnitInfos;
+
+		TArray<TArrray<TileInfo>> m_Tiles;
 	public:
+		RuleEngine() {};
+		RuleEngine(int Width, int Height) {};
 
 		//Observers
 		UnitPosition GetUnitPosition(UnitToken AssociatedUnit) const;

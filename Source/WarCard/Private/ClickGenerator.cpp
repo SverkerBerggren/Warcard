@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "ClickGenerator.h"
 #include "UnityInput.h"
 
 #include "CameraManager.h"
-#include "ClickGenerator.h"
 
 
 
@@ -98,7 +98,12 @@ void UClickGenerator::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 		if (ActorHit) {
 			UE_LOG(LogTemp, Warning, TEXT("Line trace has hit: %s"), *(ActorHit->GetName()));
-			ActorHit->Destroy();
+			//ActorHit->Destroy();
+			UClickable* ClickComponent = ActorHit->FindComponentByClass<UClickable>();
+			if (ClickComponent)
+			{
+				ClickComponent->OnClick();
+			}
 		}
 	}
 	// ...

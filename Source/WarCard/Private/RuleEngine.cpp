@@ -24,7 +24,20 @@ namespace WCE
 	{
 		return(-1);
 	}
-
+	RuleEngine::RuleEngine(int Width, int Height)
+	{
+		TileInfo EmptyTile;
+		m_Tiles.Reserve(Height);
+		for (int i = 0; i < Height; i++)
+		{
+			TArray<TileInfo> NewRow;
+			for (int j = 0; j < Width; j++)
+			{
+				NewRow.Add(EmptyTile);
+			}
+			m_Tiles.Add(NewRow);
+		}
+	}
 
 	//Mutators
 	RuleError RuleEngine::BeginResolve()

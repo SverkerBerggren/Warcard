@@ -1,12 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "BasicMovement.h"
-#include "GameFrameWork/PlayerController.h"
 
-
+#include "WCUnitInfo.h"
 
 // Sets default values for this component's properties
-UBasicMovement::UBasicMovement()
+UWCUnitInfo::UWCUnitInfo()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -17,7 +15,7 @@ UBasicMovement::UBasicMovement()
 
 
 // Called when the game starts
-void UBasicMovement::BeginPlay()
+void UWCUnitInfo::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -27,7 +25,7 @@ void UBasicMovement::BeginPlay()
 
 
 // Called every frame
-void UBasicMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UWCUnitInfo::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
