@@ -88,6 +88,20 @@ void UTileManager::BeginPlay()
 	PlaceUnit(2, 0, FVector2D(5, 0));
 	PlaceUnit(2, 0, FVector2D(5, 1));
 	PlaceUnit(2, 0, FVector2D(5, 2));
+
+	PlaceUnit(1, 1, FVector2D(0, 4));
+	PlaceUnit(1, 1, FVector2D(0, 5));
+	PlaceUnit(1, 1, FVector2D(0, 6));
+	PlaceUnit(2, 1, FVector2D(5, 4));
+	PlaceUnit(2, 1, FVector2D(5, 5));
+	PlaceUnit(2, 1, FVector2D(5, 6));
+
+	PlaceUnit(1, 2, FVector2D(0, 8));
+	PlaceUnit(1, 2, FVector2D(0, 9));
+	PlaceUnit(1, 2, FVector2D(0, 10));
+	PlaceUnit(2, 2, FVector2D(5, 8));
+	PlaceUnit(2, 2, FVector2D(5, 9));
+	PlaceUnit(2, 2, FVector2D(5, 10));
 	// ...
 	//Blue
 }
