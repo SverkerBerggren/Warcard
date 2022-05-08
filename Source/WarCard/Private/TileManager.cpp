@@ -275,7 +275,7 @@ void UTileManager::OnClick(ButtonType button)
 			for (int i = 0; i < Info.UnitData.Range+1; i++)
 			{
 				int CurrentX = Info.Position.X - i;
-				for (int j = (-Info.UnitData.Range+i); j < (Info.UnitData.Range-i); j++)
+				for (int j = (-Info.UnitData.Range+i); j <= (Info.UnitData.Range-i); j++)
 				{
 					int CurrentY = Info.Position.Y+j;
 					if (CurrentY < 0 || CurrentY >= Height)
@@ -295,7 +295,7 @@ void UTileManager::OnClick(ButtonType button)
 				if (i != 0)
 				{
 					CurrentX = Info.Position.X + i;
-					for (int j = (-Info.UnitData.Range + i); j < (Info.UnitData.Range - i); j++)
+					for (int j = (-Info.UnitData.Range + i); j <= (Info.UnitData.Range - i); j++)
 					{
 						int CurrentY = Info.Position.Y + j;
 						if (CurrentY < 0 || CurrentY >= Height)
@@ -356,6 +356,33 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 	}
 	else
 	{
+		if (m_RuleEngine.GetActivePlayerIndex() == m_RuleEngine.GetUnitInfo(SelectedUnit).UnitData.ControllerIndex)
+		{
+			if (LastButtonType == ButtonType::Move)
+			{
+				auto AvailableMoves = m_RuleEngine.PossibleMoves(SelectedUnit);
+				WCE::UnitPosition NewLocation{ X,Y };
+				if (AvailableMoves.Contains(NewLocation))
+				{
+					MoveUnit(SelectedUnit, NewLocation);
+				}
+			}
+			else if (LastButtonType == ButtonType::Attack)
+			{
+				if (m_PlacedUnits[Y][X] != 0)
+				{
+					WCE::UnitInfo const& SelectedInfo = m_RuleEngine.GetUnitInfo(SelectedUnit);
+					WCE::UnitInfo const& Info = m_RuleEngine.GetUnitInfo(m_PlacedUnits[Y][X]);
+					if (Info.UnitData.ControllerIndex != SelectedInfo.UnitData.ControllerIndex)
+					{
+						if (abs(SelectedInfo.Position.X - Info.Position.X) + abs(SelectedInfo.Position.Y - Info.Position.Y) <= SelectedInfo.UnitData.Range)
+						{
+							AttackUnit(SelectedUnit, m_PlacedUnits[Y][X]);
+						}
+					}
+				}
+			}
+		}
 		UnitSelected = false;
 		SelectedUnit = 0;
 	}
@@ -399,10 +426,10 @@ void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	}
 	m_EventStack.Empty();
 	//Test
-	if (UnityInput::GetKeyDown(EKeys::SpaceBar))
-	{
-		AttackUnit(1, 4);
-	}
+	//if (UnityInput::GetKeyDown(EKeys::SpaceBar))
+	//{
+	//	AttackUnit(1, 4);
+	//}
 	// ...
 }
 
