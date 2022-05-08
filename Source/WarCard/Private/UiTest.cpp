@@ -356,7 +356,7 @@ void UUiTest::SetActivePlayer(int activePlayer)
 	{
 
 		isImageSwitchRight = true;
-		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
+		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2.Switch2'"), NULL, LOAD_None, NULL);
 		if (nyBild == nullptr)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Nullptr med bild"));
