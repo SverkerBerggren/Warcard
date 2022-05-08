@@ -93,10 +93,7 @@ protected:
 
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UImage* imageChangeTurn;
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UImage* turnSignifierRight;
-	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
-		 class UImage* imageChangeTurnRight;
+	 
 
 	 virtual void NativeConstruct() override;
 

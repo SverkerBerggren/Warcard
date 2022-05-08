@@ -24,6 +24,8 @@ void UUiTest::NativeConstruct()
 	UUiTest::CreateUnitCard(testUnit);
 
 
+//	UUiTest::CreateUnitCard(testUnit);
+
 	buttonAttack->OnClicked.AddDynamic(this, &UUiTest::AttackButtonFunction);
 	buttonMove->OnClicked.AddDynamic(this, &UUiTest::MoveButtonFunction);
 	buttonAbility->OnClicked.AddDynamic(this, &UUiTest::AbilityButtonFunction);
@@ -32,14 +34,14 @@ void UUiTest::NativeConstruct()
 
 //	CanvasUnitCard->SetVisibility(ESlateVisibility::Hidden);
 
-	SetActivePlayer(2);
-	UpdatePlayerScore(1, 15);
-	SetRoundTimer(45);
-	turnSignifierRight->SetVisibility(ESlateVisibility::Hidden);
+//	SetActivePlayer(2);
+//	UpdatePlayerScore(1, 15);
+//	SetRoundTimer(45);
+//	turnSignifierRight->SetVisibility(ESlateVisibility::Hidden);
+//	turnSignifierRight->SetVisibility(ESlateVisibility::Visible);
+//	imageChangeTurnRight->SetVisibility(ESlateVisibility::Hidden);
 
-	imageChangeTurnRight->SetVisibility(ESlateVisibility::Hidden);
-
-	SetInitiativ(5);
+//	SetInitiativ(5);
 //	ChangeTurnButtonFunction();
 
 	// SetBottomHud(ESlateVisibility::Hidden);
@@ -87,46 +89,7 @@ void UUiTest::ChangeTurnButtonFunction()
 		callBack->OnClick(ButtonType::ChangeTurn);
 	}	
 	//UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
-//	//passTurnSwitch->SetBrushFromTexture(nyBild, false);
 //
-//	FSlateBrush brushToChange = FSlateBrush::FSlateBrush();
-	if (!isImageSwitchRight)
-	{
-		SetActivePlayer(2);
-		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2.Switch2'"), NULL, LOAD_None, NULL);
-		if (nyBild == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
-
-			return;
-		}
-		imageChangeTurn->SetBrushResourceObject(nyBild);
-		isImageSwitchRight = true;
-		imageChangeTurn->ReloadConfig();
-	//	imageChangeTurn->PostLoad();
-
-		
-		UE_LOG(LogTemp, Warning, TEXT("Knappen klickas true"));
-	}
-	if (isImageSwitchRight)
-	{
-		SetActivePlayer(1);
-		UTexture2D* enBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
-		if (enBild == nullptr)
-		{
-			
-			UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
-
-			return;
-		}
-		imageChangeTurn->SetBrushResourceObject(enBild);
-
-	//	imageChangeTurn->SetBrushFromTexture(enBild, false);
-	//	imageChangeTurn->ReloadConfig();
-		isImageSwitchRight = false;
-		UE_LOG(LogTemp, Warning, TEXT("Knappen klickas false"));
-	}
-//	passTurnSwitch->WidgetStyle.Normal.SetResourceObject(nyBild);
  //	brushToChange.SetResourceObject(nyBild);
  //
  //	passTurnSwitch->WidgetStyle.SetNormal(brushToChange);
@@ -391,16 +354,30 @@ void UUiTest::SetActivePlayer(int activePlayer)
 {
 	if (activePlayer == 1)
 	{
-		turnIdentifier->SetVisibility(ESlateVisibility::Hidden);
-		turnSignifierRight->SetVisibility(ESlateVisibility::Visible);
-//		turnIdentifier->SynchronizeProperties();
+
+		isImageSwitchRight = true;
+		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
+		if (nyBild == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Nullptr med bild"));
+			return;
+		}
+		imageChangeTurn->SetBrushFromTexture(nyBild,false);
+		turnIdentifier->SetBrushFromTexture(nyBild,false);
 	}
 	if (activePlayer == 2)
 	{
-		turnIdentifier->SetVisibility(ESlateVisibility::Visible);
-		turnSignifierRight->SetVisibility(ESlateVisibility::Hidden);
-//		turnIdentifier->SynchronizeProperties();
+	
 
+		isImageSwitchRight = true;
+		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
+		if (nyBild == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Nullptr med bild"));
+			return;
+		}
+		imageChangeTurn->SetBrushFromTexture(nyBild, false);
+		turnIdentifier->SetBrushFromTexture(nyBild);
 	}
 }
 
