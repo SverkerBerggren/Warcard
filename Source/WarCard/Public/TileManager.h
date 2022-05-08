@@ -5,6 +5,7 @@
 #include "WCTile.h"
 #include "WCUnitInfo.h"
 #include "RuleEngine.h"
+#include "UiTest.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "TileManager.generated.h"
@@ -76,7 +77,7 @@ public:
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class WARCARD_API UTileManager : public UActorComponent,public GridReciever,public WCE::RuleEngineCallbackHandler
+class WARCARD_API UTileManager : public UActorComponent,public GridReciever,public WCE::RuleEngineCallbackHandler, public ButtonCallbacks
 {
 	GENERATED_BODY()
 
@@ -126,7 +127,7 @@ public:
 		m_EventStack.Push(MoveTemp(EventData));
 	}
 
-
+	
 	void DisplayAttackRange(WCE::UnitToken AssociatedUnit);
 	void PlaceUnit(int PlayerIndex,int UnitIndex,FVector2D Position);
 	void PlaceSwitch(WCE::UnitPosition SwitchPosition);
@@ -135,10 +136,14 @@ public:
 
 	WCE::UnitToken SelectedUnit = 0;
 	bool UnitSelected = false;
+	ButtonType LastButtonType = ButtonType(0);
+	virtual void OnClick(ButtonType button);
 
 	//TArray<TArray<
 	TArray<TArray<WCE::UnitToken>> m_PlacedUnits;
 	TMap<WCE::UnitToken, AActor*> m_UnitActors;
+	
+	TMap<WCE::UnitType, int> m_UnitTypeIndexes;
 	TArray<TArray<AActor*>> m_Grid;
 
 

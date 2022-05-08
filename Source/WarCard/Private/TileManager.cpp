@@ -5,6 +5,8 @@
 
 #include "PaperSprite.h"
 #include "PaperSpriteComponent.h"
+
+#include "UiTest.h"
 //#include "../Plugins/2D/Paper2D/Source/Paper2D/Classes/PaperSpriteComponent.h"
 
 // Sets default values for this component's properties
@@ -71,6 +73,11 @@ void UTileManager::BeginPlay()
 		m_Grid.Add(NewRow);
 		m_PlacedUnits.Add(NewUnits);
 	}
+	if (UUiTest::GetHud())
+	{
+		//UUiTest::GetHud()->SetVisibility(ESlateVisibility::Hidden);
+		UUiTest::GetHud()->SetButtonCallback(this);
+	}
 	m_RuleEngine = WCE::RuleEngine(Width, Height);
 	m_GridStartPosition = FVector2D( 0,0 );
 	m_TileWidth = SpriteWidth;
@@ -111,6 +118,8 @@ void UTileManager::PlaceUnit(int PlayerIndex, int UnitIndex, FVector2D Position)
 	UWCUnitInfo* CurrentInfo = NewActor->FindComponentByClass<UWCUnitInfo>();
 	if (CurrentInfo)
 	{
+		UnitInfo.Type = CurrentInfo->UnitID;
+		m_UnitTypeIndexes.Add(UnitInfo.Type, UnitIndex);
 		UnitInfo.CurrentHP = CurrentInfo->HP;
 		UnitInfo.MovementSpeed = CurrentInfo->Movement;
 		UnitInfo.Damage = CurrentInfo->Damage;
@@ -229,6 +238,86 @@ void UTileManager::AttackUnit(WCE::UnitToken Attacker, WCE::UnitToken Defender)
 	ActiveAnimation = new Animation_Attack(AttackerObject, DefenderObject);
 	m_RuleEngine.Attack(Attacker, Defender);
 }
+void UTileManager::OnClick(ButtonType button)
+{
+	LastButtonType = button;
+	UE_LOG(LogTemp, Warning, TEXT("On Click fired: %d"),LastButtonType);
+	if (UnitSelected)
+	{
+		if (m_HighlightTiles.Num() > 0)
+		{
+			p_ClearSelectedTiles();
+		}
+		if (LastButtonType == ButtonType::Move)
+		{
+			if (m_RuleEngine.GetActivePlayerIndex() != m_RuleEngine.GetUnitInfo(SelectedUnit).UnitData.ControllerIndex)
+			{
+				return;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Searcing available moves:"));
+			TArray<WCE::UnitPosition> PossibleMoves = m_RuleEngine.PossibleMoves(SelectedUnit);
+			for (auto& Move : PossibleMoves)
+			{
+				FVector Position = FVector(m_GridStartPosition.X + Move.X * m_TileWidth, m_GridStartPosition.Y + Move.Y * m_TileWidth, 20);
+				FTransform NewTransform;
+				NewTransform.SetLocation(Position);
+				AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
+				m_HighlightTiles.Add(NewActor);
+			}
+		}
+		if (LastButtonType == ButtonType::Attack)
+		{
+			if (m_RuleEngine.GetActivePlayerIndex() != m_RuleEngine.GetUnitInfo(SelectedUnit).UnitData.ControllerIndex)
+			{
+				return;
+			}
+			WCE::UnitInfo const& Info = m_RuleEngine.GetUnitInfo(SelectedUnit);
+			for (int i = 0; i < Info.UnitData.Range+1; i++)
+			{
+				int CurrentX = Info.Position.X - i;
+				for (int j = (-Info.UnitData.Range+i); j < (Info.UnitData.Range-i); j++)
+				{
+					int CurrentY = Info.Position.Y+j;
+					if (CurrentY < 0 || CurrentY >= Height)
+					{
+						continue;
+					}
+					if (CurrentX < 0 || CurrentX >= Width)
+					{
+						continue;
+					}
+					FVector Position = FVector(CurrentX * m_TileWidth, CurrentY *m_TileWidth, 20);
+					FTransform NewTransform;
+					NewTransform.SetLocation(Position);
+					AActor* NewActor = GetWorld()->SpawnActor<AActor>(EnemyTile, NewTransform);
+					m_HighlightTiles.Add(NewActor);
+				}
+				if (i != 0)
+				{
+					CurrentX = Info.Position.X + i;
+					for (int j = (-Info.UnitData.Range + i); j < (Info.UnitData.Range - i); j++)
+					{
+						int CurrentY = Info.Position.Y + j;
+						if (CurrentY < 0 || CurrentY >= Height)
+						{
+							continue;
+						}
+						if (CurrentX < 0 || CurrentX >= Width)
+						{
+							continue;
+						}
+						FVector Position = FVector(CurrentX * m_TileWidth, CurrentY * m_TileWidth, 20);
+						FTransform NewTransform;
+						NewTransform.SetLocation(Position);
+						AActor* NewActor = GetWorld()->SpawnActor<AActor>(EnemyTile, NewTransform);
+						m_HighlightTiles.Add(NewActor);
+					}
+				}
+			}
+		}
+	}
+}
+
 void UTileManager::GridClick(ClickType Type,int X, int Y) 
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Grid clickelick"));
@@ -244,9 +333,6 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 	{
 		p_ClearSelectedTiles();
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Highlighting tile with unit %d"),m_PlacedUnits[Y][X]);
-
-
 	if (UnitSelected == false)
 	{
 		if (m_PlacedUnits[Y][X] == 0)
@@ -263,28 +349,15 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 			{
 				return;
 			}
-			UE_LOG(LogTemp, Warning, TEXT("Searcing available moves:"));
-			TArray<WCE::UnitPosition> PossibleMoves = m_RuleEngine.PossibleMoves(m_PlacedUnits[Y][X]);
-			for (auto& Move : PossibleMoves)
-			{
-				FVector Position = FVector(m_GridStartPosition.X + Move.X * m_TileWidth, m_GridStartPosition.Y + Move.Y * m_TileWidth, 20);
-				FTransform NewTransform;
-				NewTransform.SetLocation(Position);
-				AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
-				m_HighlightTiles.Add(NewActor);
-			}
 			UnitSelected = true;
 			SelectedUnit = m_PlacedUnits[Y][X];
 		}
+		UE_LOG(LogTemp, Warning, TEXT("Selecting unit %d"), m_PlacedUnits[Y][X]);
 	}
 	else
 	{
-		TArray<WCE::UnitPosition> PossibleMoves = m_RuleEngine.PossibleMoves(SelectedUnit);
-		if (PossibleMoves.Contains(WCE::UnitPosition{X,Y}))
-		{
-			MoveUnit(SelectedUnit, WCE::UnitPosition{ X,Y });
-		}
 		UnitSelected = false;
+		SelectedUnit = 0;
 	}
 }
 
@@ -292,7 +365,14 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	if (UUiTest::GetHud())
+	{
+		//UUiTest::GetHud()->SetBottomHud(ESlateVisibility::Hidden);
+		//UUiTest::GetHud()->SetBottomButton(ButtonType::Attack, 0);
+		//UUiTest::GetHud()->UpdatePlayerScore(1,10);
+		//UUiTest::GetHud()->UpdatePlayerScore(2,10);
+		UUiTest::GetHud()->SetButtonCallback(this);
+	}
 	if(ActiveAnimation)
 	{
 		ActiveAnimation->Increment(DeltaTime);
