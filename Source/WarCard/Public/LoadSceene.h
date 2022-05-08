@@ -4,29 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Temp.generated.h"
+#include "LoadSceene.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class WARCARD_API UTemp : public UActorComponent
+class WARCARD_API ULoadSceene : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UTemp();
+	ULoadSceene();
 
-	UPROPERTY(EditAnywhere)
-		TArray<float> Durations;
-	UPROPERTY(EditAnywhere)
-		TArray<FString> Text;
-	UPROPERTY(EditAnywhere)
-		TArray<UTexture2D*> Images;
-	//TArray<TS
-	// Sets default values for this component's properties
-
-	float ElapsedTime = 0;
-	int CurrentIndex = 0;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

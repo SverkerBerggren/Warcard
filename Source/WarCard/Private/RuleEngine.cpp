@@ -6,7 +6,7 @@ namespace WCE
 	//Observers
 	UnitPosition RuleEngine::GetUnitPosition(UnitToken AssociatedUnit) const
 	{
-		UnitPosition ReturnValue;
+		UnitPosition ReturnValue{ 0,0 };
 
 		return(ReturnValue);
 	}

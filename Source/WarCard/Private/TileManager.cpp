@@ -625,7 +625,6 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 		}
 		ResetSelect();
 	}
-	p_SwitchSwitches();
 }
 
 // Called every frame
@@ -656,10 +655,12 @@ void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		}
 		return;
 	}
+	bool HadEvents = false;
 	for (int i = m_EventOffset; i < m_EventStack.Num(); i++)
 	{
 		if (m_EventStack[i]->GetType() == EventType::UnitDestroyed)
 		{
+			HadEvents = true;
 			Event_UnitDestroyed const& DestroyEvent =static_cast<Event_UnitDestroyed const&>(*m_EventStack[i].Get());
 			if (m_UnitActors.Contains(DestroyEvent.DestroyedUnit))
 			{
@@ -669,6 +670,10 @@ void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 				m_PlacedUnits[DestroyEvent.Position.Y][DestroyEvent.Position.X] = 0;
 			}
 		}
+	}
+	if (HadEvents)
+	{
+		p_SwitchSwitches();
 	}
 	m_EventStack.Empty();
 	//Test

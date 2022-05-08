@@ -20,6 +20,8 @@ public:
 		UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		class UImage* backgroundIMage;
 
+		static UIntroWidget* GetWidget();
+
 		virtual void NativeConstruct() override;
 	
 };

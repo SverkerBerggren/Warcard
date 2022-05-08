@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Temp.h"
+#include "IntroCutscene.h"
 #include "Components/TextBlock.h" 
 #include "IntroWidget.h"
 #include "Kismet/GameplayStatics.h" 
 
 // Sets default values for this component's properties
-UTemp::UTemp()
+UIntroCutscene::UIntroCutscene()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -18,7 +18,7 @@ UTemp::UTemp()
 
 
 // Called when the game starts
-void UTemp::BeginPlay()
+void UIntroCutscene::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -28,10 +28,11 @@ void UTemp::BeginPlay()
 
 
 // Called every frame
-void UTemp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UIntroCutscene::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UE_LOG(LogTemp, Warning, TEXT("Kommer hit"));
+
 	if (UIntroWidget::GetWidget())
 	{
 		DeltaTime = 1.0f / 60.0f;
@@ -54,5 +55,6 @@ void UTemp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 		UE_LOG(LogTemp, Warning, TEXT("Kommer hit"));
 		//UIntroWidget::GetWidget()->firstTextBlock->SetText(FText::FromString("ASDASDASDASD"));
 	}
+	// ...
 }
 
