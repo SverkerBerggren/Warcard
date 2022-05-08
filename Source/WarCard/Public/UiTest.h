@@ -75,6 +75,12 @@ protected:
 
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UImage* turnIdentifier;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UImage* scoreImageLeft;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UImage* scoreImageRight;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UButton* passTurnSwitch;
 
 
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
@@ -84,6 +90,13 @@ protected:
 	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
 		 class UButton* buttonAbility;
 
+
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UImage* imageChangeTurn;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UImage* turnSignifierRight;
+	 UPROPERTY(BlueprintReadwrite, meta = (BindWidget))
+		 class UImage* imageChangeTurnRight;
 
 	 virtual void NativeConstruct() override;
 
@@ -135,7 +148,9 @@ public:
 
 	ButtonCallbacks* callBack = nullptr; 
 
+	bool isImageSwitchRight = false; 
 
+	void SetCardVisiblity(ESlateVisibility hej);
 
 
 	void SetButtonCallback(ButtonCallbacks* );

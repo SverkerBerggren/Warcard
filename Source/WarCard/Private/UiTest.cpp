@@ -2,7 +2,7 @@
 
 
 #include "UiTest.h"
-
+#include "Styling/SlateBrush.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/CanvasPanel.h"
@@ -16,49 +16,121 @@ void UUiTest::NativeConstruct()
 	
 
 	TheHud = this; 
-
+	
+//	passTurnSwitch->OnMouseButtonDownEvent(UUiTest::CreateUnitCard());
 
 	UWCUnitInfo* testUnit = NewObject<UWCUnitInfo>();
 
 	UUiTest::CreateUnitCard(testUnit);
 
+
+	buttonAttack->OnClicked.AddDynamic(this, &UUiTest::AttackButtonFunction);
+	buttonMove->OnClicked.AddDynamic(this, &UUiTest::MoveButtonFunction);
+	buttonAbility->OnClicked.AddDynamic(this, &UUiTest::AbilityButtonFunction);
+	passTurnSwitch->OnClicked.AddDynamic(this, &UUiTest::ChangeTurnButtonFunction);
+	
+
 //	CanvasUnitCard->SetVisibility(ESlateVisibility::Hidden);
 
 	SetActivePlayer(2);
-	UpdatePlayerScore(1, 10);
+	UpdatePlayerScore(1, 15);
 	SetRoundTimer(45);
+	turnSignifierRight->SetVisibility(ESlateVisibility::Hidden);
+
+	imageChangeTurnRight->SetVisibility(ESlateVisibility::Hidden);
 
 	SetInitiativ(5);
+//	ChangeTurnButtonFunction();
 
 	// SetBottomHud(ESlateVisibility::Hidden);
 
 }
 void UUiTest::SetButtonCallback(ButtonCallbacks* inputObject)
 {
-	callBack = inputObject; 
+	
+		callBack = inputObject;
+	
 }
 
 
 void UUiTest::MoveButtonFunction()
 {
-	callBack->OnClick(ButtonType::Move);
+	if (callBack != nullptr)
+	{
+		callBack->OnClick(ButtonType::Move);
+	}
 }
 
 
 void UUiTest::AttackButtonFunction()
 {
-	callBack->OnClick(ButtonType::Attack);
+	if (callBack != nullptr)
+	{
+		callBack->OnClick(ButtonType::Attack);
+	}
 }
 
 
 void UUiTest::AbilityButtonFunction()
 {
-	callBack->OnClick(ButtonType::Ability);
+	if (callBack != nullptr)
+	{
+		callBack->OnClick(ButtonType::Ability);
+	}
 }
 
 void UUiTest::ChangeTurnButtonFunction()
 {
-	callBack->OnClick(ButtonType::ChangeTurn);
+	
+	if (callBack != nullptr)
+	{
+		callBack->OnClick(ButtonType::ChangeTurn);
+	}	
+	//UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
+//	//passTurnSwitch->SetBrushFromTexture(nyBild, false);
+//
+//	FSlateBrush brushToChange = FSlateBrush::FSlateBrush();
+	if (!isImageSwitchRight)
+	{
+		SetActivePlayer(2);
+		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2.Switch2'"), NULL, LOAD_None, NULL);
+		if (nyBild == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+			return;
+		}
+		imageChangeTurn->SetBrushResourceObject(nyBild);
+		isImageSwitchRight = true;
+		imageChangeTurn->ReloadConfig();
+	//	imageChangeTurn->PostLoad();
+
+		
+		UE_LOG(LogTemp, Warning, TEXT("Knappen klickas true"));
+	}
+	if (isImageSwitchRight)
+	{
+		SetActivePlayer(1);
+		UTexture2D* enBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
+		if (enBild == nullptr)
+		{
+			
+			UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+			return;
+		}
+		imageChangeTurn->SetBrushResourceObject(enBild);
+
+	//	imageChangeTurn->SetBrushFromTexture(enBild, false);
+	//	imageChangeTurn->ReloadConfig();
+		isImageSwitchRight = false;
+		UE_LOG(LogTemp, Warning, TEXT("Knappen klickas false"));
+	}
+//	passTurnSwitch->WidgetStyle.Normal.SetResourceObject(nyBild);
+ //	brushToChange.SetResourceObject(nyBild);
+ //
+ //	passTurnSwitch->WidgetStyle.SetNormal(brushToChange);
+
 }
 
 
@@ -130,6 +202,11 @@ void UUiTest::CreateUnitCard( UWCUnitInfo* unitToConstruct)
 	
 }
 
+void UUiTest::SetCardVisiblity(ESlateVisibility state)
+{
+	CanvasUnitCard->SetVisibility(state);
+}
+
 void UUiTest::CreateBottomHud(UWCUnitInfo* unitReference)
 {
 	
@@ -139,13 +216,170 @@ void UUiTest::UpdatePlayerScore(int playerIndex, int scoreToSet)
 {
 	if (playerIndex == 1)
 	{
-		leftPlayerScore->SetText(FText::FromString(FString::FString("Left player: ") + FString::FormatAsNumber(scoreToSet) + FString::FString("/30")));
+		leftPlayerScore->SetText(FText::FromString(FString::FString("Left player: ") + FString::FormatAsNumber(scoreToSet) + FString::FString("/30"))); 
+
+		if (10 > scoreToSet && scoreToSet >= 5)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_2.Score_2'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageLeft->SetBrushFromTexture(nyBild, false);
+		}
+		if (15 > scoreToSet && scoreToSet >= 10)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_3.Score_3'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageLeft->SetBrushFromTexture(nyBild, false);
+		}
+		if (20 > scoreToSet && scoreToSet >= 15)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_4.Score_4'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageLeft->SetBrushFromTexture(nyBild, false);
+		}
+		if (25 > scoreToSet && scoreToSet >= 20)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_5.Score_5'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageLeft->SetBrushFromTexture(nyBild, false);
+		}
+		if (30 > scoreToSet && scoreToSet >= 25)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_6.Score_6'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageLeft->SetBrushFromTexture(nyBild, false);
+		}
+		if (scoreToSet >= 30)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_7.Score_7'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageLeft->SetBrushFromTexture(nyBild, false);
+		}
 
 	}
 	if (playerIndex == 2)
 	{
-		leftPlayerScore->SetText(FText::FromString(FString::FString("Right player: ") + FString::FormatAsNumber(scoreToSet) + FString::FString("/30")));
+		rightPlayerScore->SetText(FText::FromString(FString::FString("Right player: ") + FString::FormatAsNumber(scoreToSet) + FString::FString("/30")));
 
+		if (10 > scoreToSet && scoreToSet >= 5)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_2.Score_2'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageRight->SetBrushFromTexture(nyBild, false);
+		}
+		if (15 > scoreToSet && scoreToSet >= 10)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_3.Score_3'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageRight->SetBrushFromTexture(nyBild, false);
+		}
+		if (20 > scoreToSet && scoreToSet >= 15)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_4.Score_4'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageRight->SetBrushFromTexture(nyBild, false);
+		}
+		if (25 > scoreToSet && scoreToSet >= 20)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_5.Score_5'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageRight->SetBrushFromTexture(nyBild, false);
+		}
+		if (30 > scoreToSet && scoreToSet >= 25)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_6.Score_6'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageRight->SetBrushFromTexture(nyBild, false);
+		}
+		if (scoreToSet >= 30)
+		{
+			UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Score_7.Score_7'"), NULL, LOAD_None, NULL);
+
+			if (nyBild == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
+
+				return;
+			}
+
+			scoreImageRight->SetBrushFromTexture(nyBild, false);
+		}
 	}
 }
 
@@ -157,28 +391,16 @@ void UUiTest::SetActivePlayer(int activePlayer)
 {
 	if (activePlayer == 1)
 	{
-		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2.Switch2'"), NULL, LOAD_None, NULL);
-
-		if (nyBild == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
-
-			return;
-		}
-
-		turnIdentifier->SetBrushFromTexture(nyBild, false);
+		turnIdentifier->SetVisibility(ESlateVisibility::Hidden);
+		turnSignifierRight->SetVisibility(ESlateVisibility::Visible);
+//		turnIdentifier->SynchronizeProperties();
 	}
 	if (activePlayer == 2)
 	{
-		UTexture2D* nyBild = LoadObject<UTexture2D>(NULL, TEXT("Texture2D'/Game/Sprites/Switch2_2.Switch2_2'"), NULL, LOAD_None, NULL);
+		turnIdentifier->SetVisibility(ESlateVisibility::Visible);
+		turnSignifierRight->SetVisibility(ESlateVisibility::Hidden);
+//		turnIdentifier->SynchronizeProperties();
 
-		if (nyBild == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Den blev inte settad"));
-
-			return;
-		}
-		turnIdentifier->SetBrushFromTexture(nyBild, false);
 	}
 }
 
