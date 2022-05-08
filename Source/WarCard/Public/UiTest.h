@@ -16,6 +16,7 @@
 
 enum class ButtonType
 {
+	Null,
 	Move,
 	Attack, 
 	Ability,
@@ -101,7 +102,7 @@ protected:
 
 //	 UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SoftObject", meta = (AllowedClasses = "Texture2D"))
 //		 FSoftObjectPath hej TEXT("Texture2D'/Game/Sprites/1_2_2.1_2_2'");
-
+public:
 	 UFUNCTION()
 	  void ForstaKnappenKlick();
 	 UFUNCTION()

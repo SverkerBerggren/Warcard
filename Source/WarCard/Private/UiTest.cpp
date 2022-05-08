@@ -394,9 +394,9 @@ void UUiTest::SetInitiativ(int intitativ)
 
 void UUiTest::SetBottomHud(ESlateVisibility state)
 {
-	buttonMove->SetVisibility(ESlateVisibility::Hidden);
-	buttonAttack->SetVisibility(ESlateVisibility::Hidden);
-	buttonAbility->SetVisibility(ESlateVisibility::Hidden);
+	buttonMove->SetVisibility(state);
+	buttonAttack->SetVisibility(state);
+	buttonAbility->SetVisibility(state);
 }
 
 void UUiTest::ChangeImageClick()

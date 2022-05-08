@@ -7,6 +7,8 @@
 #include "RuleEngine.h"
 #include "UiTest.h"
 #include "CoreMinimal.h"
+#include "PaperSprite.h"
+#include "PaperSpriteComponent.h"
 #include "Components/ActorComponent.h"
 #include "TileManager.generated.h"
 
@@ -37,8 +39,11 @@ private:
 	FVector DefenderOriginalPosition;
 	AActor* AttackerObject = nullptr;
 	AActor* DefenderObject = nullptr;
+	UPaperSprite* DefenderFirstSprite = nullptr;
+
+	int m_AttackPlayer = 1;
 public:
-	Animation_Attack(AActor* Attacker, AActor* Defender);
+	Animation_Attack(AActor* Attacker, AActor* Defender,int AttackPlayer);
 	void Increment(float DeltaTime) override;
 	bool IsFinished() override;
 };
@@ -127,6 +132,8 @@ public:
 		m_EventStack.Push(MoveTemp(EventData));
 	}
 
+
+	void ResetSelect();
 	
 	void DisplayAttackRange(WCE::UnitToken AssociatedUnit);
 	void PlaceUnit(int PlayerIndex,int UnitIndex,FVector2D Position);
@@ -136,8 +143,11 @@ public:
 
 	WCE::UnitToken SelectedUnit = 0;
 	bool UnitSelected = false;
-	ButtonType LastButtonType = ButtonType(0);
+	ButtonType LastButtonType = ButtonType::Null;
 	virtual void OnClick(ButtonType button);
+
+
+	bool RuntimeInitialized = false;
 
 	//TArray<TArray<
 	TArray<TArray<WCE::UnitToken>> m_PlacedUnits;

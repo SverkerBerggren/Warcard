@@ -178,12 +178,13 @@ void UTileManager::MoveUnit(WCE::UnitToken TokenToMove, WCE::UnitPosition NewPos
 	m_PlacedUnits[Position.Y][Position.X] = 0;
 	m_PlacedUnits[NewPosition.Y][NewPosition.X] = TokenToMove;
 }
-Animation_Attack::Animation_Attack(AActor* Attacker, AActor* Defender)
+Animation_Attack::Animation_Attack(AActor* Attacker, AActor* Defender,int AttackPlayer)
 {
 	if (Attacker == nullptr || Defender == nullptr)
 	{
 		return;
 	}
+	m_AttackPlayer = AttackPlayer;
 	AttackerObject = Attacker;
 	AttackerOriginalPosition = AttackerObject->GetActorLocation();
 	DefenderOriginalPosition = Defender->GetActorLocation();
@@ -208,6 +209,32 @@ void Animation_Attack::Increment(float DeltaTime)
 		FVector NewPosition = DefenderOriginalPosition;
 		NewPosition.X += FMath::Sin(m_ElapsedTime * m_ElapsedTime * 1000) * m_Amplitude;
 		DefenderObject->SetActorLocation(NewPosition);
+		UPaperSpriteComponent* SpriteComponent = DefenderObject->FindComponentByClass<UPaperSpriteComponent>();
+		if (SpriteComponent)
+		{
+			UWCUnitInfo* UnitInfo = DefenderObject->FindComponentByClass<UWCUnitInfo>();
+			if (UnitInfo)
+			{
+				UPaperSprite* SpriteToSet = nullptr;
+				if (m_AttackPlayer == 1)
+				{
+					SpriteToSet = UnitInfo->DamageSprite2;
+				}
+				else
+				{
+					SpriteToSet = UnitInfo->DamageSprite1;
+				}
+				if (DefenderFirstSprite == nullptr)
+				{
+					DefenderFirstSprite = SpriteComponent->GetSprite();
+				}
+				if (SpriteToSet)
+				{
+					SpriteComponent->SetSprite(SpriteToSet);
+				}
+
+			}
+		}
 	}
 	m_ElapsedTime += DeltaTime;
 }
@@ -222,6 +249,14 @@ bool Animation_Attack::IsFinished()
 	{
 		DefenderObject->SetActorLocation(DefenderOriginalPosition);
 		AttackerObject->SetActorLocation(AttackerOriginalPosition);
+		UPaperSpriteComponent* SpriteComponent = DefenderObject->FindComponentByClass<UPaperSpriteComponent>();
+		if (SpriteComponent)
+		{
+			if (DefenderFirstSprite)
+			{
+				SpriteComponent->SetSprite(DefenderFirstSprite);
+			}
+		}
 	}
 	return(ReturnValue);
 }
@@ -235,7 +270,7 @@ void UTileManager::AttackUnit(WCE::UnitToken Attacker, WCE::UnitToken Defender)
 	}
 	AttackerObject = m_UnitActors[Attacker];
 	DefenderObject = m_UnitActors[Defender];
-	ActiveAnimation = new Animation_Attack(AttackerObject, DefenderObject);
+	ActiveAnimation = new Animation_Attack(AttackerObject, DefenderObject,m_RuleEngine.GetUnitInfo(Attacker).UnitData.ControllerIndex);
 	m_RuleEngine.Attack(Attacker, Defender);
 }
 void UTileManager::OnClick(ButtonType button)
@@ -318,6 +353,16 @@ void UTileManager::OnClick(ButtonType button)
 	}
 }
 
+
+void UTileManager::ResetSelect()
+{
+	SelectedUnit = 0;
+	UnitSelected = 0;
+	LastButtonType = ButtonType::Null;
+	UUiTest::GetHud()->SetBottomHud(ESlateVisibility::Hidden);
+	UUiTest::GetHud()->SetCardVisiblity(ESlateVisibility::Hidden);
+}
+
 void UTileManager::GridClick(ClickType Type,int X, int Y) 
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Grid clickelick"));
@@ -335,20 +380,41 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 	}
 	if (UnitSelected == false)
 	{
+		FVector Position = FVector(m_GridStartPosition.X + X * m_TileWidth, m_GridStartPosition.Y + Y * m_TileWidth, 20);
+		FTransform NewTransform;
+		NewTransform.SetLocation(Position);
+		AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
+		m_HighlightTiles.Add(NewActor);
 		if (m_PlacedUnits[Y][X] == 0)
 		{
-			FVector Position = FVector(m_GridStartPosition.X + X * m_TileWidth, m_GridStartPosition.Y + Y * m_TileWidth, 20);
-			FTransform NewTransform;
-			NewTransform.SetLocation(Position);
-			AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
-			m_HighlightTiles.Add(NewActor);
+			ResetSelect();
 		}
 		else
 		{ 
+			WCE::UnitInfo const& Info = m_RuleEngine.GetUnitInfo(m_PlacedUnits[Y][X]);
+			if (m_UnitTypeIndexes.Contains(Info.UnitData.Type))
+			{
+				int Index = m_UnitTypeIndexes[Info.UnitData.Type];
+				AActor* InfoActor = GetWorld()->SpawnActor<AActor>(Units[Index], NewTransform);
+				UWCUnitInfo* CurrentInfo = InfoActor->FindComponentByClass<UWCUnitInfo>();
+				if (CurrentInfo)
+				{
+					CurrentInfo->HP = Info.UnitData.CurrentHP;
+					CurrentInfo->Damage = Info.UnitData.Damage;
+					CurrentInfo->Range = Info.UnitData.Range;
+					CurrentInfo->Movement = Info.UnitData.MovementSpeed;
+					CurrentInfo->ActivationCost = Info.UnitData.ActivationCost;
+					UUiTest::GetHud()->CreateUnitCard(CurrentInfo);
+				}
+				UE_LOG(LogTemp, Warning, TEXT("Creating new card"));
+				InfoActor->Destroy();
+			}
+			UUiTest::GetHud()->SetCardVisiblity(ESlateVisibility::Visible);
 			if (m_RuleEngine.GetActivePlayerIndex() != m_RuleEngine.GetUnitInfo(m_PlacedUnits[Y][X]).UnitData.ControllerIndex)
 			{
 				return;
 			}
+			UUiTest::GetHud()->SetBottomHud(ESlateVisibility::Visible);
 			UnitSelected = true;
 			SelectedUnit = m_PlacedUnits[Y][X];
 		}
@@ -383,8 +449,7 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 				}
 			}
 		}
-		UnitSelected = false;
-		SelectedUnit = 0;
+		ResetSelect();
 	}
 }
 
@@ -392,13 +457,18 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (UUiTest::GetHud())
+
+	if (!RuntimeInitialized)
 	{
-		//UUiTest::GetHud()->SetBottomHud(ESlateVisibility::Hidden);
-		//UUiTest::GetHud()->SetBottomButton(ButtonType::Attack, 0);
-		//UUiTest::GetHud()->UpdatePlayerScore(1,10);
-		//UUiTest::GetHud()->UpdatePlayerScore(2,10);
-		UUiTest::GetHud()->SetButtonCallback(this);
+		if (UUiTest::GetHud())
+		{
+			UUiTest::GetHud()->SetBottomHud(ESlateVisibility::Hidden);
+			UUiTest::GetHud()->SetCardVisiblity(ESlateVisibility::Hidden);
+			//UUiTest::GetHud()->UpdatePlayerScore(1,10);
+			//UUiTest::GetHud()->UpdatePlayerScore(2,10);
+			UUiTest::GetHud()->SetButtonCallback(this);
+		}
+		RuntimeInitialized = true;
 	}
 	if(ActiveAnimation)
 	{
