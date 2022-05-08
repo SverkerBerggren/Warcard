@@ -19,6 +19,8 @@ UTileManager::UTileManager()
 	// ...
 }
 
+constexpr WCE::UnitType SWITCH_TYPE = 10000;
+constexpr int SWITCH_VALUE = 5;
 
 // Called when the game starts
 void UTileManager::BeginPlay()
@@ -102,6 +104,11 @@ void UTileManager::BeginPlay()
 	PlaceUnit(2, 2, FVector2D(5, 8));
 	PlaceUnit(2, 2, FVector2D(5, 9));
 	PlaceUnit(2, 2, FVector2D(5, 10));
+
+	PlaceUnit(3, 3, FVector2D(3, 1));
+	PlaceUnit(3, 3, FVector2D(3, 2));
+	PlaceUnit(3, 3, FVector2D(3, 3));
+	PlaceUnit(3, 3, FVector2D(3, 4));
 	// ...
 	//Blue
 }
@@ -287,6 +294,121 @@ void UTileManager::AttackUnit(WCE::UnitToken Attacker, WCE::UnitToken Defender)
 	ActiveAnimation = new Animation_Attack(AttackerObject, DefenderObject,m_RuleEngine.GetUnitInfo(Attacker).UnitData.ControllerIndex);
 	m_RuleEngine.Attack(Attacker, Defender);
 }
+
+void UTileManager::p_CheckSwitchOwner(WCE::UnitPosition Position)
+{
+	int Player1Controlled = 0;
+	int Player2Controlled = 0;
+	for (int i = -1; i < 2; i++)
+	{
+		for (int j = -1; j < 2; j++)
+		{
+			if(j == 0 && i == 0)
+			{
+				continue;
+			}
+			WCE::UnitPosition NewPosition = WCE::UnitPosition{ Position.X + i,Position.Y + j };
+			if (m_PlacedUnits[NewPosition.Y][NewPosition.X] != 0)
+			{
+				WCE::UnitInfo const& Info = m_RuleEngine.GetUnitInfo(m_PlacedUnits[NewPosition.Y][NewPosition.X]);
+				if (Info.UnitData.ControllerIndex == 1)
+				{
+					Player1Controlled += 1;
+				}
+				if (Info.UnitData.ControllerIndex == 2)
+				{
+					Player2Controlled += 1;
+				}
+			}
+		}
+	}
+	UWCUnitInfo* UnitInfo = p_GetSwitchUnitInfo(Position);
+	if (UnitInfo)
+	{
+		UPaperSpriteComponent* SpriteComponent = UnitInfo->GetOwner()->FindComponentByClass<UPaperSpriteComponent>();
+		if (SpriteComponent)
+		{
+			if (Player1Controlled > Player2Controlled)
+			{
+				UnitInfo->ActivationCost = 1;
+				SpriteComponent->SetSprite(UnitInfo->DamageSprite1);
+			}
+			else if (Player1Controlled < Player2Controlled)
+			{
+				UnitInfo->ActivationCost = 2;
+				SpriteComponent->SetSprite(UnitInfo->DamageSprite2);
+			}
+			else
+			{
+				UnitInfo->ActivationCost = 0;
+				SpriteComponent->SetSprite(UnitInfo->IdleSprite1);
+			}
+		}
+	}
+}
+TArray<WCE::UnitPosition> UTileManager::p_GetSwitchPositions()
+{
+	TArray<WCE::UnitPosition> ReturnValue;
+	for (int i = 0; i < Height; i++)
+	{
+		for (int j = 0; j < Width; j++)
+		{
+			if (m_PlacedUnits[i][j] != 0 && m_RuleEngine.GetUnitInfo(m_PlacedUnits[i][j]).UnitData.Type == SWITCH_TYPE)
+			{
+				ReturnValue.Add(WCE::UnitPosition{ j,i });
+			}
+		}
+	}
+	return(ReturnValue);
+}
+UWCUnitInfo* UTileManager::p_GetSwitchUnitInfo(WCE::UnitPosition Position)
+{
+	UWCUnitInfo* ReturnValue = nullptr;
+	AActor** ActorPointer = m_UnitActors.Find(m_PlacedUnits[Position.Y][Position.X]);
+	if (ActorPointer)
+	{
+		AActor* CurrentActor = *ActorPointer;
+		if (CurrentActor)
+		{
+			ReturnValue = CurrentActor->FindComponentByClass<UWCUnitInfo>();
+		}
+	}
+	return(ReturnValue);
+}
+void UTileManager::p_SwitchSwitches()
+{
+	TArray<WCE::UnitPosition> SwitchPositions = p_GetSwitchPositions();
+	for (auto& Position : SwitchPositions)
+	{
+		p_CheckSwitchOwner(Position);
+	}
+}
+void UTileManager::p_IncreaseScores()
+{
+	TArray<WCE::UnitPosition> SwitchPositions = p_GetSwitchPositions();
+	for (auto& Position : SwitchPositions)
+	{
+		UWCUnitInfo* CurrentInfo = p_GetSwitchUnitInfo(Position);
+		if (CurrentInfo)
+		{
+			if (CurrentInfo->ActivationCost == 1)
+			{
+				Player1Score += SWITCH_VALUE;
+			}
+			if (CurrentInfo->ActivationCost == 2)
+			{
+				Player2Score += SWITCH_VALUE;
+			}
+		}
+	}
+	UUiTest::GetHud()->UpdatePlayerScore(1, Player1Score);
+	UUiTest::GetHud()->UpdatePlayerScore(2, Player2Score);
+	if (Player1Score >= 30 || Player2Score >= 30)
+	{
+
+	}
+}
+
 void UTileManager::OnClick(ButtonType button)
 {
 	LastButtonType = button;
@@ -314,6 +436,7 @@ void UTileManager::OnClick(ButtonType button)
 				m_HighlightTiles.Add(NewActor);
 			}
 		}
+		p_SwitchSwitches();
 		if (LastButtonType == ButtonType::Attack)
 		{
 			if (m_RuleEngine.GetActivePlayerIndex() != m_RuleEngine.GetUnitInfo(SelectedUnit).UnitData.ControllerIndex)
@@ -364,6 +487,7 @@ void UTileManager::OnClick(ButtonType button)
 				}
 			}
 		}
+		p_SwitchSwitches();
 	}
 	if (LastButtonType == ButtonType::ChangeTurn)
 	{
@@ -372,7 +496,15 @@ void UTileManager::OnClick(ButtonType button)
 		m_RuleEngine.PassTurn();
 		UUiTest::GetHud()->SetInitiativ(m_RuleEngine.GetActivePlayerInitiative());
 		UUiTest::GetHud()->SetActivePlayer(m_RuleEngine.GetActivePlayerIndex());
+
+		if (m_RuleEngine.GetActivePlayerIndex() == 1)
+		{
+			BattleRound += 1;
+			UUiTest::GetHud()->SetRoundTimer(BattleRound);
+			p_IncreaseScores();
+		}
 	}
+	p_SwitchSwitches();
 }
 
 
@@ -407,7 +539,7 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 		NewTransform.SetLocation(Position);
 		AActor* NewActor = GetWorld()->SpawnActor<AActor>(SelectTile, NewTransform);
 		m_HighlightTiles.Add(NewActor);
-		if (m_PlacedUnits[Y][X] == 0)
+		if (m_PlacedUnits[Y][X] == 0 || m_RuleEngine.GetUnitInfo(m_PlacedUnits[Y][X]).UnitData.Type == SWITCH_TYPE)
 		{
 			ResetSelect();
 		}
@@ -493,6 +625,7 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 		}
 		ResetSelect();
 	}
+	p_SwitchSwitches();
 }
 
 // Called every frame
@@ -509,6 +642,7 @@ void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 			//UUiTest::GetHud()->UpdatePlayerScore(1,10);
 			//UUiTest::GetHud()->UpdatePlayerScore(2,10);
 			UUiTest::GetHud()->SetButtonCallback(this);
+			UUiTest::GetHud()->SetRoundTimer(BattleRound);
 		}
 		RuntimeInitialized = true;
 	}

@@ -156,7 +156,15 @@ public:
 	TMap<WCE::UnitType, int> m_UnitTypeIndexes;
 	TArray<TArray<AActor*>> m_Grid;
 
+	int Player1Score = 0;
+	int Player2Score = 0;
+	int BattleRound = 1;
 
+	UWCUnitInfo* p_GetSwitchUnitInfo(WCE::UnitPosition Position);
+	void p_CheckSwitchOwner(WCE::UnitPosition Position);
+	TArray<WCE::UnitPosition> p_GetSwitchPositions();
+	void p_SwitchSwitches();
+	void p_IncreaseScores();
 
 	TArray<AActor*> m_HighlightTiles;
 
