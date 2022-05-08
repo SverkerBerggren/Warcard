@@ -351,6 +351,14 @@ void UTileManager::OnClick(ButtonType button)
 			}
 		}
 	}
+	if (LastButtonType == ButtonType::ChangeTurn)
+	{
+		ResetSelect();
+		p_ClearSelectedTiles();
+		m_RuleEngine.PassTurn();
+		UUiTest::GetHud()->SetInitiativ(m_RuleEngine.GetActivePlayerInitiative());
+		UUiTest::GetHud()->SetActivePlayer(m_RuleEngine.GetActivePlayerIndex());
+	}
 }
 
 
@@ -410,6 +418,24 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 				InfoActor->Destroy();
 			}
 			UUiTest::GetHud()->SetCardVisiblity(ESlateVisibility::Visible);
+			bool AffordActivation = (Info.UnitData.Flags & uint64_t(WCE::UnitFlags::Activated)) || Info.UnitData.ActivationCost <= m_RuleEngine.GetActivePlayerInitiative();
+			if (Info.UnitData.Flags & uint64_t(WCE::UnitFlags::Moved) || !AffordActivation)
+			{
+				UUiTest::GetHud()->SetBottomButton(ButtonType::Move, 0);
+			}
+			else
+			{
+				UUiTest::GetHud()->SetBottomButton(ButtonType::Move, 1);
+			}
+			if (Info.UnitData.Flags & uint64_t(WCE::UnitFlags::Attacked) || !AffordActivation)
+			{
+				UUiTest::GetHud()->SetBottomButton(ButtonType::Attack, 0);
+			}
+			else
+			{
+				UUiTest::GetHud()->SetBottomButton(ButtonType::Attack, 1);
+			}
+			UUiTest::GetHud()->SetBottomButton(ButtonType::Ability, 0);
 			if (m_RuleEngine.GetActivePlayerIndex() != m_RuleEngine.GetUnitInfo(m_PlacedUnits[Y][X]).UnitData.ControllerIndex)
 			{
 				return;
@@ -431,6 +457,7 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 				if (AvailableMoves.Contains(NewLocation))
 				{
 					MoveUnit(SelectedUnit, NewLocation);
+					UUiTest::GetHud()->SetInitiativ(m_RuleEngine.GetActivePlayerInitiative());
 				}
 			}
 			else if (LastButtonType == ButtonType::Attack)
@@ -444,6 +471,7 @@ void UTileManager::GridClick(ClickType Type,int X, int Y)
 						if (abs(SelectedInfo.Position.X - Info.Position.X) + abs(SelectedInfo.Position.Y - Info.Position.Y) <= SelectedInfo.UnitData.Range)
 						{
 							AttackUnit(SelectedUnit, m_PlacedUnits[Y][X]);
+							UUiTest::GetHud()->SetInitiativ(m_RuleEngine.GetActivePlayerInitiative());
 						}
 					}
 				}

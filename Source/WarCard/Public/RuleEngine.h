@@ -94,7 +94,7 @@ namespace WCE
 	struct Unit
 	{
 		int ControllerIndex = 0;
-		UnitFlags Flags = UnitFlags::Null;
+		uint64_t Flags = 0;
 		UnitType Type = 0;
 		TArray<TUniquePtr<Effect>> Effects;
 		int ActivationCost = 0;
@@ -139,6 +139,12 @@ namespace WCE
 		RuleEngineCallbackHandler* m_CallbackHandler = nullptr;
 
 		int m_ActivePlayerIndex = 1;
+
+		int m_StartInitiative = 10;
+
+		int m_Player1Initiative = 10;
+		int m_Player2Initiative = 10;
+
 		void i_RecursiveTraversal(UnitInfo const& Info, UnitPosition CurrentPosition, int PossibleMoves, TArray<UnitPosition>& OutResult) const;
 	public:
 		RuleEngine() {};
@@ -151,9 +157,10 @@ namespace WCE
 		TArray<UnitPosition> PossibleMoves(UnitToken AssociatedUnit) const;
 		UnitInfo const& GetUnitInfo(UnitToken AssociatedUnit) const;
 		int GetActivePlayerIndex() const;
-
+		int GetActivePlayerInitiative() const;
 
 		//Mutators
+		void PassTurn();
 		UnitToken RegisterUnit(Unit UnitInfo, UnitPosition Position);
 		RuleError MoveUnit(UnitToken AssociatedUnit, UnitPosition NewPosition);
 		RuleError Attack(UnitToken Attacker, UnitToken Defender);

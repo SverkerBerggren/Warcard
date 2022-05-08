@@ -112,6 +112,36 @@ namespace WCE
 	}
 
 	//Mutators
+	int RuleEngine::GetActivePlayerInitiative() const
+	{
+		if(GetActivePlayerIndex() == 1)
+		{
+			return(m_Player1Initiative);
+		}
+		else
+		{
+			return(m_Player2Initiative);
+		}
+	}
+
+	//Mutators
+	void RuleEngine::PassTurn()
+	{
+		m_Player1Initiative = m_StartInitiative;
+		m_Player2Initiative = m_StartInitiative;
+		for (auto& Unit : m_UnitInfos)
+		{
+			Unit.Value.UnitData.Flags = 0;
+		}
+		if (GetActivePlayerIndex() == 1)
+		{
+			m_ActivePlayerIndex = 2;
+		}
+		else
+		{
+			m_ActivePlayerIndex = 1;
+		}
+	}
 	RuleError RuleEngine::Attack(UnitToken Attacker, UnitToken Defender)
 	{
 		RuleError ReturnValue = RuleError::Ok;
@@ -126,6 +156,19 @@ namespace WCE
 		UnitInfo& DefenderInfo = m_UnitInfos[Defender];
 		if (abs(AttackerInfo.Position.X - DefenderInfo.Position.X) + abs(AttackerInfo.Position.Y-AttackerInfo.Position.Y) <= AttackerInfo.UnitData.Range)
 		{
+			if (!(AttackerInfo.UnitData.Flags & uint64_t(UnitFlags::Activated)))
+			{
+				if (GetActivePlayerIndex() == 1)
+				{
+					m_Player1Initiative -= AttackerInfo.UnitData.ActivationCost;
+				}
+				if (GetActivePlayerIndex() == 2)
+				{
+					m_Player2Initiative -= AttackerInfo.UnitData.ActivationCost;
+				}
+				AttackerInfo.UnitData.Flags = AttackerInfo.UnitData.Flags | uint64_t(UnitFlags::Activated);
+			}
+			AttackerInfo.UnitData.Flags = AttackerInfo.UnitData.Flags | uint64_t(UnitFlags::Attacked);
 			DefenderInfo.UnitData.CurrentHP -= AttackerInfo.UnitData.Damage;
 			UE_LOG(LogTemp, Warning, TEXT("Should attack %d %d"), DefenderInfo.UnitData.CurrentHP, AttackerInfo.UnitData.Damage);
 			if (DefenderInfo.UnitData.CurrentHP <= 0)
@@ -190,6 +233,19 @@ namespace WCE
 			return(ReturnValue);
 		}
 		UnitInfo& Info = m_UnitInfos[AssociatedUnit];
+		if (!(Info.UnitData.Flags & uint64_t(UnitFlags::Activated)))
+		{
+			if (GetActivePlayerIndex() == 1)
+			{
+				m_Player1Initiative -= Info.UnitData.ActivationCost;
+			}
+			if (GetActivePlayerIndex() == 2)
+			{
+				m_Player2Initiative -= Info.UnitData.ActivationCost;
+			}
+			Info.UnitData.Flags = Info.UnitData.Flags | uint64_t(UnitFlags::Activated);
+		}
+		Info.UnitData.Flags = Info.UnitData.Flags | uint64_t(UnitFlags::Moved);
 		m_Tiles[Info.Position.Y][Info.Position.X].StandingUnit = UnitToken(0);
 		Info.Position = NewPosition;
 		m_Tiles[NewPosition.Y][NewPosition.X].StandingUnit = AssociatedUnit;
