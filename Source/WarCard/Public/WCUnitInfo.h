@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
+#include "PaperSprite.h"
+#include "PaperSpriteComponent.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "WCUnitInfo.generated.h"
@@ -31,6 +32,18 @@ public:
 
 	UPROPERTY(EditAnywhere);
 	FText description = FText::AsNumber(420);
+
+	UPROPERTY(EditAnywhere);
+	UPaperSprite* IdleSprite1 = nullptr;
+
+	UPROPERTY(EditAnywhere);
+	UPaperSprite* DamageSprite1 = nullptr;
+
+	UPROPERTY(EditAnywhere);
+	UPaperSprite* IdleSprite2 = nullptr;
+
+	UPROPERTY(EditAnywhere);
+	UPaperSprite* DamageSprite2 = nullptr;
 
 	UPROPERTY(EditAnywhere);
 	UTexture2D* cardImage;

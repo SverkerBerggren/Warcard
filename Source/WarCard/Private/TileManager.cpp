@@ -26,6 +26,7 @@ void UTileManager::BeginPlay()
 	double CurrentY = 0;
 	double CurrentX = 0;
 	double SpriteWidth = 0;
+	m_RuleEngine.SetCallbackHandler(this);
 	m_Grid.Reserve(Height);
 	m_PlacedUnits.Reserve(Height);
 	for (int i = 0; i < Height; i++)
@@ -44,6 +45,7 @@ void UTileManager::BeginPlay()
 			UPaperSpriteComponent* SpriteComponent = NewActor->FindComponentByClass<UPaperSpriteComponent>();
 			if(SpriteComponent)
 			{
+				//SpriteComponent->SetSprite();
 				SpriteWidth = SpriteComponent->GetSprite()->GetBakedTexture()->GetSizeX();
 			}
 			else
@@ -72,7 +74,7 @@ void UTileManager::BeginPlay()
 	m_RuleEngine = WCE::RuleEngine(Width, Height);
 	m_GridStartPosition = FVector2D( 0,0 );
 	m_TileWidth = SpriteWidth;
-
+	m_RuleEngine.SetCallbackHandler(this);
 	PlaceUnit(1, 0, FVector2D(0, 0));
 	PlaceUnit(1, 0, FVector2D(0, 1));
 	PlaceUnit(1, 0, FVector2D(0, 2));
@@ -119,6 +121,26 @@ void UTileManager::PlaceUnit(int PlayerIndex, int UnitIndex, FVector2D Position)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No unit info in prefab"));
+	}
+	UPaperSpriteComponent* SpriteComponent = NewActor->FindComponentByClass<UPaperSpriteComponent>();
+	if (SpriteComponent)
+	{
+		if (PlayerIndex == 1)
+		{
+			if (CurrentInfo->IdleSprite1)
+			{
+				//SpriteComponent->SetWorldRotation()
+				SpriteComponent->AddLocalRotation(FRotator(0,180,0));
+				SpriteComponent->SetSprite(CurrentInfo->IdleSprite1);
+			}
+		}
+		if (PlayerIndex == 2)
+		{
+			if (CurrentInfo->IdleSprite2)
+			{
+				SpriteComponent->SetSprite(CurrentInfo->IdleSprite2);
+			}
+		}
 	}
 	WCE::UnitPosition UnitPosition;
 	UnitInfo.ControllerIndex = PlayerIndex;
@@ -205,6 +227,7 @@ void UTileManager::AttackUnit(WCE::UnitToken Attacker, WCE::UnitToken Defender)
 	AttackerObject = m_UnitActors[Attacker];
 	DefenderObject = m_UnitActors[Defender];
 	ActiveAnimation = new Animation_Attack(AttackerObject, DefenderObject);
+	m_RuleEngine.Attack(Attacker, Defender);
 }
 void UTileManager::GridClick(ClickType Type,int X, int Y) 
 {
@@ -280,10 +303,25 @@ void UTileManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		}
 		return;
 	}
+	for (int i = m_EventOffset; i < m_EventStack.Num(); i++)
+	{
+		if (m_EventStack[i]->GetType() == EventType::UnitDestroyed)
+		{
+			Event_UnitDestroyed const& DestroyEvent =static_cast<Event_UnitDestroyed const&>(*m_EventStack[i].Get());
+			if (m_UnitActors.Contains(DestroyEvent.DestroyedUnit))
+			{
+				WCE::UnitToken DestroyedUnit = DestroyEvent.DestroyedUnit;
+				m_UnitActors[DestroyedUnit]->Destroy();
+				m_UnitActors.Remove(DestroyedUnit);
+				m_PlacedUnits[DestroyEvent.Position.Y][DestroyEvent.Position.X] = 0;
+			}
+		}
+	}
+	m_EventStack.Empty();
 	//Test
 	if (UnityInput::GetKeyDown(EKeys::SpaceBar))
 	{
-		AttackUnit(1, 2);
+		AttackUnit(1, 4);
 	}
 	// ...
 }

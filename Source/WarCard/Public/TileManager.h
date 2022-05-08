@@ -18,6 +18,10 @@ public:
 	UTileManager* AssociatedTileHandler = nullptr;
 	virtual void Increment(float DeltaTime) = 0;
 	virtual bool IsFinished() = 0;
+	virtual ~AnimationHandler()
+	{
+
+	}
 };
 
 class Animation_Attack : public AnimationHandler
@@ -50,19 +54,25 @@ class Event
 protected:
 	EventType m_Type = EventType::Null;
 public:
-	EventType GetType() const
+	virtual EventType GetType() const
 	{
 		return(m_Type);
 	}
+	virtual ~Event()
+	{
+
+	}
 };
 
-class Event_UnitDestroyed : Event
+class Event_UnitDestroyed : public Event
 {
+public:
 	Event_UnitDestroyed()
 	{
 		m_Type = EventType::UnitDestroyed;
 	}
 	WCE::UnitToken DestroyedUnit = 0;
+	WCE::UnitPosition Position;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -99,7 +109,21 @@ public:
 
 	void UnitDestroyed(WCE::UnitToken DestroyedUnit) override
 	{
-
+		TUniquePtr<Event> EventData = TUniquePtr<Event>(new Event_UnitDestroyed());
+		Event_UnitDestroyed* Data =(Event_UnitDestroyed*) EventData.Get();
+		Data->DestroyedUnit = DestroyedUnit;
+		for (size_t i = 0; i < Height; i++)
+		{
+			for (size_t j = 0; j < Width; j++)
+			{
+				if (m_PlacedUnits[i][j] == DestroyedUnit)
+				{
+					Data->Position.X = j;
+					Data->Position.Y = i;
+				}
+			}
+		}
+		m_EventStack.Push(MoveTemp(EventData));
 	}
 
 

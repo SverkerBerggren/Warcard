@@ -118,6 +118,7 @@ namespace WCE
 
 		if (!(m_UnitInfos.Contains(Attacker) && m_UnitInfos.Contains(Defender)))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Didant attack"));
 			ReturnValue = RuleError::UnitDoesntExist;
 			return(ReturnValue);
 		}
@@ -126,13 +127,16 @@ namespace WCE
 		if (abs(AttackerInfo.Position.X - DefenderInfo.Position.X) + abs(AttackerInfo.Position.Y-AttackerInfo.Position.Y) <= AttackerInfo.UnitData.Range)
 		{
 			DefenderInfo.UnitData.CurrentHP -= AttackerInfo.UnitData.Damage;
+			UE_LOG(LogTemp, Warning, TEXT("Should attack %d %d"), DefenderInfo.UnitData.CurrentHP, AttackerInfo.UnitData.Damage);
 			if (DefenderInfo.UnitData.CurrentHP <= 0)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Destroying"));
 				DestroyUnit(Defender);
 			}
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Didant attack"));
 			ReturnValue = RuleError::InvalidPosition;
 		}
 
@@ -151,16 +155,24 @@ namespace WCE
 		if (!m_UnitInfos.Contains(AssociatedUnit))
 		{
 			ReturnValue = RuleError::UnitDoesntExist;
+			UE_LOG(LogTemp, Warning, TEXT("the fuck"));
 			return ReturnValue;
 		}
-		if (m_CallbackHandler)
+		if (m_CallbackHandler != nullptr)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Callbacking"));
 			m_CallbackHandler->UnitDestroyed(AssociatedUnit);
 		}
+		UE_LOG(LogTemp, Warning, TEXT("removing rule part"));
 		UnitInfo const& Info = m_UnitInfos[AssociatedUnit];
 		m_Tiles[Info.Position.Y][Info.Position.X].StandingUnit = 0;
 		m_UnitInfos.Remove(AssociatedUnit);
 		return(ReturnValue);
+	}
+	void RuleEngine::SetCallbackHandler(RuleEngineCallbackHandler* CallbackHandler)
+	{
+		m_CallbackHandler = CallbackHandler;
+		UE_LOG(LogTemp, Warning, TEXT("Callbacking %d"),m_CallbackHandler);
 	}
 	RuleError RuleEngine::MoveUnit(UnitToken AssociatedUnit, UnitPosition NewPosition)
 	{
