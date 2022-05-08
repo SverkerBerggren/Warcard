@@ -85,30 +85,33 @@ void UTileManager::BeginPlay()
 	m_TileWidth = SpriteWidth;
 	m_RuleEngine.SetCallbackHandler(this);
 	PlaceUnit(1, 0, FVector2D(0, 0));
-	PlaceUnit(1, 0, FVector2D(0, 1));
-	PlaceUnit(1, 0, FVector2D(0, 2));
+	PlaceUnit(1, 1, FVector2D(0, 1));
+	PlaceUnit(1, 2, FVector2D(0, 2));
+
+
 	PlaceUnit(2, 0, FVector2D(5, 0));
-	PlaceUnit(2, 0, FVector2D(5, 1));
-	PlaceUnit(2, 0, FVector2D(5, 2));
+	PlaceUnit(2, 1, FVector2D(5, 1));
+	PlaceUnit(2, 2, FVector2D(5, 2));
 
-	PlaceUnit(1, 1, FVector2D(0, 4));
-	PlaceUnit(1, 1, FVector2D(0, 5));
-	PlaceUnit(1, 1, FVector2D(0, 6));
-	PlaceUnit(2, 1, FVector2D(5, 4));
-	PlaceUnit(2, 1, FVector2D(5, 5));
-	PlaceUnit(2, 1, FVector2D(5, 6));
+	PlaceUnit(1, 2, FVector2D(0, 4));
+	PlaceUnit(1, 2, FVector2D(0, 5));
+	PlaceUnit(1, 2, FVector2D(0, 6));
+	PlaceUnit(2, 2, FVector2D(5, 4));
+	PlaceUnit(2, 2, FVector2D(5, 5));
+	PlaceUnit(2, 2, FVector2D(5, 6));
 
-	PlaceUnit(1, 2, FVector2D(0, 8));
+	PlaceUnit(1, 1, FVector2D(0, 8));
 	PlaceUnit(1, 2, FVector2D(0, 9));
-	PlaceUnit(1, 2, FVector2D(0, 10));
-	PlaceUnit(2, 2, FVector2D(5, 8));
+	PlaceUnit(1, 3, FVector2D(0, 10));
+	PlaceUnit(2, 1, FVector2D(5, 8));
 	PlaceUnit(2, 2, FVector2D(5, 9));
-	PlaceUnit(2, 2, FVector2D(5, 10));
+	PlaceUnit(2, 3, FVector2D(5, 10));
 
 	PlaceUnit(3, 3, FVector2D(3, 1));
-	PlaceUnit(3, 3, FVector2D(3, 2));
-	PlaceUnit(3, 3, FVector2D(3, 3));
-	PlaceUnit(3, 3, FVector2D(3, 4));
+	PlaceUnit(3, 3, FVector2D(3, 5));
+	PlaceUnit(3, 3, FVector2D(7, 1));
+	PlaceUnit(3, 3, FVector2D(7, 5));
+	PlaceUnit(3, 3, FVector2D(4, 3));
 	// ...
 	//Blue
 }
